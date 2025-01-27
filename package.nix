@@ -28,7 +28,11 @@ in
     #   };
     defaultInitFile = pkgs.substituteAll {
       name = "default.el";
-      src = ./init.el;
+      src = pkgs.writeText "init.el" ''
+        ;;; -*- lexical-binding: t; -*-
+        (org-babel-load-file
+         ${./config.org})
+      '';
     };
 
     # Package is optional, defaults to pkgs.emacs
