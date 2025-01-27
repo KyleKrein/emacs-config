@@ -26,15 +26,9 @@ in
     #     src = ./emacs.el;
     #     inherit (config.xdg) configHome dataHome;
     #   };
-    defaultInitFile = pkgs.substituteAll {
-      name = "default.el";
-      src = pkgs.writeText "init.el" ''
-        ;;; -*- lexical-binding: t; -*-
-        (org-babel-load-file
-         ${./config.org})
-      '';
+    defaultInitFile = pkgs.tangleOrgBabelFile "default.el" ./config.org {
+      languages = ["emacs-lisp"];
     };
-
     # Package is optional, defaults to pkgs.emacs
     package = emacs;
 
