@@ -3,12 +3,7 @@
   x11 ? false,
   ...
 }: let
-  emacs =
-    if x11
-    then pkgs.emacs-unstable
-    else pkgs.emacs-pgtk;
-in
-  pkgs.emacsWithPackagesFromUsePackage {
+  emacs = pkgs.emacsWithPackagesFromUsePackage {
     # Your Emacs config file. Org mode babel files are also
     # supported.
     # NB: Config files cannot contain unicode characters, since
@@ -30,7 +25,10 @@ in
       languages = ["emacs-lisp"];
     };
     # Package is optional, defaults to pkgs.emacs
-    package = emacs;
+    package =
+      if x11
+      then pkgs.emacs-unstable
+      else pkgs.emacs-pgtk;
 
     # By default emacsWithPackagesFromUsePackage will only pull in
     # packages with `:ensure`, `:ensure t` or `:ensure <package name>`.
@@ -53,8 +51,11 @@ in
     # Optionally provide extra packages not in the configuration file.
     # This can also include extra executables to be run by Emacs (linters,
     # language servers, formatters, etc)
-    extraEmacsPackages = epkgs: [
-    ];
+    extraEmacsPackages = epkgs:
+      with pkgs; [
+        #nerd-fonts.jetbrains-mono
+        #jetbrains-mono
+      ];
 
     # Optionally override derivations.
     override = final: prev: {
@@ -62,4 +63,27 @@ in
       #  patches = [./weechat-el.patch];
       #});
     };
-  }
+  };
+  fontConfig = pkgs.makeFontsConf {
+    fontDirectories = with pkgs; [
+      jetbrains-mono
+      ubuntu-classic
+      nerd-fonts.jetbrains-mono
+    ];
+  };
+  mkEmacs = emacs:
+    pkgs.runCommand emacs.name
+    {
+      nativeBuildInputs = [pkgs.makeBinaryWrapper];
+      inherit (emacs) meta;
+    }
+    ''
+      mkdir -p $out/bin
+      for bin in ${emacs}/bin/*; do
+        makeWrapper "$bin" $out/bin/$(basename "$bin") --inherit-argv0 \
+          --set FONTCONFIG_FILE ${fontConfig}
+      done
+      ln -s ${emacs}/share $out/share
+    '';
+in
+  mkEmacs emacs
