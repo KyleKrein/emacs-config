@@ -13,11 +13,25 @@
 - [[#graphical-user-interface-tweaks][GRAPHICAL USER INTERFACE TWEAKS]]
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
   - [[#display-line-numbers-and-truncated-lines][Display Line Numbers and Truncated Lines]]
+  - [[#disable-gui-elements][Disable GUI elements]]
+  - [[#battery-info][Battery info]]
+- [[#magit][MAGIT]]
+- [[#minibuffer-escape][Minibuffer escape]]
+- [[#modeline][Modeline]]
+- [[#pdf-tools][PDF Tools]]
+- [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#org-mode][ORG MODE]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#enabling-org-bullets][Enabling Org Bullets]]
   - [[#disable-electric-indent][Disable Electric Indent]]
+  - [[#org-level-headers][Org Level Headers]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
+- [[#org-roam][ORG ROAM]]
+  - [[#org-roam-itself][Org Roam itself]]
+  - [[#org-roam-ui][Org Roam UI]]
+  - [[#org-agenda][Org Agenda]]
+  - [[#inbox][Inbox]]
+  - [[#todos-in-today][Todos in Today]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#shells-and-terminals][SHELLS AND TERMINALS]]
   - [[#eshell][Eshell]]
@@ -59,69 +73,80 @@
 #+end_src
 ** General Keybindings
 #+begin_src emacs-lisp
-        (use-package general
-          :ensure t
-          :config
-          (general-evil-setup)
-        )
-        (require 'general) ;; If i do this in :config, it says that function is wrong
-          ;; set up 'SPC' as the global leader key
-          (general-create-definer kylekrein/leader-keys
-            :states '(normal insert visual emacs)
-            :keymaps 'override
-            :prefix "SPC" ;; set leader
-            :global-prefix "M-SPC") ;; access leader in insert mode
-            (kylekrein/leader-keys
-          "." '(find-file :wk "Find file")
-          "f r" '(recentf-open :wk "Open recent file")
-          "TAB TAB" '(comment-line :wk "Comment lines"))
-    (kylekrein/leader-keys
-        "b" '(:ignore t :wk "buffer")
-        "b b" '(switch-to-buffer :wk "Switch buffer")
-        "b i" '(ibuffer :wk "Ibuffer")
-        "b k" '(kill-this-buffer :wk "Kill this buffer")
-        "b n" '(next-buffer :wk "Next buffer")
-        "b p" '(previous-buffer :wk "Previous buffer")
-        "b r" '(revert-buffer :wk "Reload buffer"))
-
+          (use-package general
+            :ensure t
+            :config
+            (general-evil-setup)
+          )
+          (require 'general) ;; If i do this in :config, it says that function is wrong
+            ;; set up 'SPC' as the global leader key
+            (general-create-definer kylekrein/leader-keys
+              :states '(normal insert visual emacs)
+              :keymaps 'override
+              :prefix "SPC" ;; set leader
+              :global-prefix "M-SPC") ;; access leader in insert mode
+              (kylekrein/leader-keys
+            "." '(find-file :wk "Find file")
+            "f r" '(recentf-open :wk "Open recent file")
+            "TAB TAB" '(comment-line :wk "Comment lines"))
       (kylekrein/leader-keys
-        "e" '(:ignore t :wk "Evaluate")    
-        "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
-        "e d" '(eval-defun :wk "Evaluate defun containing or after point")
-        "e e" '(eval-expression :wk "Evaluate and elisp expression")
-        "e l" '(eval-last-sexp :wk "Evaluate elisp expression before point")
-        "e r" '(eval-region :wk "Evaluate elisp in region")) 
+          "b" '(:ignore t :wk "buffer")
+          "b b" '(switch-to-buffer :wk "Switch buffer")
+          "b i" '(ibuffer :wk "Ibuffer")
+          "b k" '(kill-current-buffer :wk "Kill current buffer")
+          "b n" '(next-buffer :wk "Next buffer")
+          "b p" '(previous-buffer :wk "Previous buffer")
+          "b r" '(revert-buffer :wk "Reload buffer"))
 
-       (kylekrein/leader-keys
-        "h" '(:ignore t :wk "Help")
-        "h f" '(describe-function :wk "Describe function")
-        "h v" '(describe-variable :wk "Describe variable"))
-        ;;"h r r" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs config"))
-        ;;"h r r" '(reload-init-file :wk "Reload emacs config"))
+        (kylekrein/leader-keys
+  "e" '(:ignore t :wk "Eshell/Evaluate")    
+      "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
+      "e d" '(eval-defun :wk "Evaluate defun containing or after point")
+      "e e" '(eval-expression :wk "Evaluate and elisp expression")
+      "e l" '(eval-last-sexp :wk "Evaluate elisp expression before point")
+      "e r" '(eval-region :wk "Evaluate elisp in region")
+      "e s" '(eshell :which-key "Eshell"))
 
-       (kylekrein/leader-keys
-        "t" '(:ignore t :wk "Toggle")
-        "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-        "t t" '(visual-line-mode :wk "Toggle truncated lines"))
+         (kylekrein/leader-keys
+          "h" '(:ignore t :wk "Help")
+          "h f" '(describe-function :wk "Describe function")
+          "h v" '(describe-variable :wk "Describe variable"))
+          ;;"h r r" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs config"))
+          ;;"h r r" '(reload-init-file :wk "Reload emacs config"))
 
+         (kylekrein/leader-keys
+          "t" '(:ignore t :wk "Toggle")
+          "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+          "t t" '(visual-line-mode :wk "Toggle truncated lines")
+  	"t v" '(vterm-toggle :wk "Toggle vterm"))
   (kylekrein/leader-keys
-      "w" '(:ignore t :wk "Windows")
-      ;; Window splits
-      "w c" '(evil-window-delete :wk "Close window")
-      "w n" '(evil-window-new :wk "New window")
-      "w s" '(evil-window-split :wk "Horizontal split window")
-      "w v" '(evil-window-vsplit :wk "Vertical split window")
-      ;; Window motions
-      "w h" '(evil-window-left :wk "Window left")
-      "w j" '(evil-window-down :wk "Window down")
-      "w k" '(evil-window-up :wk "Window up")
-      "w l" '(evil-window-right :wk "Window right")
-      "w w" '(evil-window-next :wk "Goto next window")
-      ;; Move Windows
-      "w H" '(buf-move-left :wk "Buffer move left")
-      "w J" '(buf-move-down :wk "Buffer move down")
-      "w K" '(buf-move-up :wk "Buffer move up")
-      "w L" '(buf-move-right :wk "Buffer move right"))
+    "n" '(:ignore t :wk "Notes")
+    "n r" '(:ignore t :wk "Roam")
+    "n r f" '(org-roam-node-find :wk "Find and open")
+    "n r i" '(org-roam-node-insert :wk "Insert link")
+    "n r l" '(org-roam-buffer-toggle :wk "Show backlinks")
+    "n r d" '(:ignore t :wk "Dailies")
+    "n r d m" '(org-roam-dailies-map :wk "Show dailies map")
+    )
+
+    (kylekrein/leader-keys
+        "w" '(:ignore t :wk "Windows")
+        ;; Window splits
+        "w c" '(evil-window-delete :wk "Close window")
+        "w n" '(evil-window-new :wk "New window")
+        "w s" '(evil-window-split :wk "Horizontal split window")
+        "w v" '(evil-window-vsplit :wk "Vertical split window")
+        ;; Window motions
+        "w h" '(evil-window-left :wk "Window left")
+        "w j" '(evil-window-down :wk "Window down")
+        "w k" '(evil-window-up :wk "Window up")
+        "w l" '(evil-window-right :wk "Window right")
+        "w w" '(evil-window-next :wk "Goto next window")
+        ;; Move Windows
+        "w H" '(buf-move-left :wk "Buffer move left")
+        "w J" '(buf-move-down :wk "Buffer move down")
+        "w K" '(buf-move-up :wk "Buffer move up")
+        "w L" '(buf-move-right :wk "Buffer move right"))
 
 #+end_src
 
@@ -183,9 +208,74 @@ Let's make GNU Emacs look a little better.
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode t)
 #+end_src
+** Disable GUI elements
+#+begin_src emacs-lisp
+(setq use-file-dialog nil)   ;; No file dialog
+(setq use-dialog-box nil)    ;; No dialog box
+(setq pop-up-windows nil)    ;; No popup windows
+#+end_src
+** Battery info
+#+begin_src emacs-lisp
+(unless (equal "Battery status not available"
+               (battery))
+  (display-battery-mode 1))
+#+end_src
+* MAGIT
+Magit is a full-featured git client for Emacs.
+#+begin_src emacs-lisp
+  (use-package magit
+    :ensure t)
+#+end_src
+* Minibuffer escape
+By default, Emacs requires you to hit ESC three times to escape quit the minibuffer.
+#+begin_src emacs-lisp
+(global-set-key [escape] 'keyboard-escape-quit)
+#+end_src
+* Modeline
+The modeline is the bottom status bar that appears in Emacs windows.  While you can create your own custom modeline, why go to the trouble when Doom Emacs already has a nice modeline package available.  For more information on what is available to configure in the Doom modeline, check out: [[https://github.com/seagle0128/doom-modeline][Doom Modeline]]
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 35      ;; sets modeline height
+        doom-modeline-bar-width 5    ;; sets right bar width
+        doom-modeline-persp-name t   ;; adds perspective name to modeline
+        doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+#+end_src
+* PDF Tools
+[[https://github.com/vedang/pdf-tools][pdf-tools]] is a replacement of DocView for viewing PDF files inside Emacs.  It uses the poppler library, which also means that ‘pdf-tools’ can by used to modify PDFs.  I use to disable ‘display-line-numbers-mode’ in ‘pdf-view-mode’ because line numbers crash it.
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :ensure t
+    :defer t
+    :commands (pdf-loader-install)
+    :mode "\\.pdf\\'"
+    :bind (:map pdf-view-mode-map
+                ("j" . pdf-view-next-line-or-next-page)
+                ("k" . pdf-view-previous-line-or-previous-page)
+                ("C-=" . pdf-view-enlarge)
+                ("C--" . pdf-view-shrink))
+    :init (pdf-loader-install)
+    :config (add-to-list 'revert-without-query ".pdf"))
+
+  (add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)
+                                                           (blink-cursor-mode -1)
+                                                           (doom-modeline-mode -1)))
+
+#+end_src
+* RAINBOW DELIMITERS
+Adding rainbow coloring to parentheses.
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t
+    :hook ((emacs-lisp-mode . rainbow-delimiters-mode)
+           (clojure-mode . rainbow-delimiters-mode)))
+#+end_src
 * ORG MODE
 ** Enabling Table of Contents
 #+begin_src emacs-lisp
+  (setq org-directory "~/Documents/org")
   (use-package toc-org
     :ensure t
       :commands toc-org-enable
@@ -207,6 +297,18 @@ Org mode source blocks have some really weird and annoying default indentation b
 (electric-indent-mode -1)
 #+end_src
 
+** Org Level Headers
+#+begin_src emacs-lisp
+(custom-set-faces
+ '(org-level-1 ((t (:inherit outline-1 :height 1.45))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.35))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.30))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.25))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.20))))
+ '(org-level-6 ((t (:inherit outline-5 :height 1.15))))
+ '(org-level-7 ((t (:inherit outline-5 :height 1.10)))))
+#+end_src
+
 ** Source Code Block Tag Expansion
 Org-tempo is not a separate package but a module within org that can be enabled.  Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.  Other expansions available include:
 
@@ -225,7 +327,99 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 #+begin_src emacs-lisp 
 (require 'org-tempo)
 #+end_src
+* ORG ROAM
+** Org Roam itself
+#+begin_src emacs-lisp
+    (use-package org-roam
+      :ensure t
+      :init
+      (setq org-roam-v2-ack t)
+      :custom
+      (org-roam-directory "~/Documents/org")
+      (org-roam-completion-everywhere t)
+      (org-roam-capture-templates
+        '(("d" "default" plain
+           "%?"
+           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
+           :unnarrowed t)
+  	))
+      (org-roam-dailies-capture-templates
+       '(("d" "default" entry "* %<%I:%M %p>: %?"
+         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+      :config
+      (require 'org-roam-dailies) ;; Ensure the keymap is available
+      (org-roam-db-autosync-mode)
+      (org-roam-setup))
+#+end_src
+** Org Roam UI
+#+begin_src emacs-lisp
+ (use-package org-roam-ui
+   :ensure t
+   :after org-roam)
+#+end_src
+** Org Agenda
+#+begin_src emacs-lisp
+(require 'org-roam-node)
+  (defun kylekrein/org-roam-filter-by-tag (tag-name)
+    (lambda (node)
+      (member tag-name (org-roam-node-tags node))))
 
+  (defun kylekrein/org-roam-list-notes-by-tag (tag-name)
+    (mapcar #'org-roam-node-file
+            (seq-filter
+             (kylekrein/org-roam-filter-by-tag tag-name)
+             (org-roam-node-list))))
+
+  (defun kylekrein/org-roam-refresh-agenda-list ()
+    (interactive)
+    (setq org-agenda-files (kylekrein/org-roam-list-notes-by-tag "Project")))
+
+  ;; Build the agenda list the first time for the session
+  (kylekrein/org-roam-refresh-agenda-list)
+
+
+
+  (setq org-agenda-files nil
+        org-roam-node-display-template "${title} ${tags}"
+        org-agenda-start-on-weekday 1 ;; Week starts on Monday instead of Sunday
+        )
+#+end_src
+** Inbox
+#+begin_src emacs-lisp
+
+(defun kylekrein/org-roam-capture-inbox ()
+  (interactive)
+  (org-roam-capture- :node (org-roam-node-create)
+                     :templates '(("i" "inbox" plain "* %?"
+                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
+#+end_src
+** Todos in Today
+Automatically copies all *DONE* TODOs to Today's daily
+#+begin_src emacs-lisp
+(defun kylekrein/org-roam-copy-todo-to-today ()
+  (interactive)
+  (let ((org-refile-keep t) ;; Set this to nil to delete the original!
+        (org-roam-dailies-capture-templates
+         '(("t" "tasks" entry "%?"
+            :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Daily\n" ("Completed Tasks:")))))
+        (org-after-refile-insert-hook #'save-buffer)
+        today-file
+        pos)
+    (save-window-excursion
+      (org-roam-dailies--capture (current-time) t)
+      (setq today-file (buffer-file-name))
+      (setq pos (point)))
+
+    ;; Only refile if the target file is different than the current file
+    (unless (equal (file-truename today-file)
+                   (file-truename (buffer-file-name)))
+      (org-refile nil nil (list "Tasks" today-file nil pos)))))
+
+(add-to-list 'org-after-todo-state-change-hook
+             (lambda ()
+               (when (equal org-state "DONE")
+                 (kylekrein/org-roam-copy-todo-to-today))))
+#+end_src
 * RAINBOW MODE
 Display the actual color as a background for any hex color value (ex. #ffffff).  The code block below enables rainbow-mode in all programming modes (prog-mode) as well as org-mode, which is why rainbow works in this document.  
 
