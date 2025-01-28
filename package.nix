@@ -69,6 +69,7 @@
       jetbrains-mono
       ubuntu-classic
       nerd-fonts.jetbrains-mono
+      nerd-fonts.symbols-only
     ];
   };
   mkEmacs = emacs:
