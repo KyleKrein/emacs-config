@@ -11,6 +11,10 @@
 - [[#startup-time][Startup Time]]
 - [[#app-launcher][App Launcher]]
   - [[#standalone-run][Standalone run]]
+- [[#company][Company]]
+- [[#dashboard][Dashboard]]
+- [[#diminish][Diminish]]
+- [[#flycheck][FLYCHECK]]
 - [[#fonts][Fonts]]
   - [[#zooming-inout][Zooming In/Out]]
 - [[#graphical-user-interface-tweaks][GRAPHICAL USER INTERFACE TWEAKS]]
@@ -21,6 +25,7 @@
 - [[#magit][MAGIT]]
 - [[#minibuffer-escape][Minibuffer escape]]
 - [[#modeline][Modeline]]
+- [[#projectile][PROJECTILE]]
 - [[#pdf-tools][PDF Tools]]
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#org-mode][ORG MODE]]
@@ -354,6 +359,65 @@ To use it, create a global keyboard shortcut with the following code
                     (app-launcher-run-app)
                     (delete-frame))))
 #+end_src
+* Company
+[[https://company-mode.github.io/][Company]] is a text completion framework for Emacs. The name stands for “complete anything”.  Completion will start automatically after you type a few letters. Use M-n and M-p to select, <return> to complete or <tab> to complete the common part.
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure t
+    :defer 2
+    :diminish
+    :custom
+    (company-begin-commands '(self-insert-command))
+    (company-idle-delay .1)
+    (company-minimum-prefix-length 2)
+    (company-show-numbers t)
+    (company-tooltip-align-annotations 't)
+    (global-company-mode t))
+
+  (use-package company-box
+    :ensure t
+    :after company
+    :diminish
+    :hook (company-mode . company-box-mode))
+#+end_src
+* Dashboard
+Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
+#+begin_src emacs-lisp
+(use-package dashboard
+  :ensure t 
+  :init
+  (setq initial-buffer-choice 'dashboard-open)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+  ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
+  ;;(setq dashboard-startup-banner "/home/dt/.config/emacs/images/emacs-dash.png")  ;; use custom image as banner
+  (setq dashboard-center-content nil) ;; set to 't' for centered content
+  (setq dashboard-items '((recents . 5)
+                          (agenda . 5 )
+                          (bookmarks . 3)
+                          (projects . 3)
+                          (registers . 3)))
+  :custom
+  (dashboard-modify-heading-icons '((recents . "file-text")
+                                    (bookmarks . "book")))
+  :config
+  (dashboard-setup-startup-hook))
+#+end_src
+* Diminish
+This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
+#+begin_src emacs-lisp
+(use-package diminish :ensure t)
+#+end_src
+* FLYCHECK
+Install luacheck from your Linux distro’s repositories for flycheck to work correctly with lua files.  Install python-pylint for flycheck to work with python files.  Haskell works with flycheck as long as haskell-ghc or haskell-stack-ghc is installed.  For more information on language support for flycheck, [[https://www.flycheck.org/en/latest/languages.html][read this]].
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t
+  :defer t
+  :diminish
+  :init (global-flycheck-mode))
+#+end_src
 * Fonts
 Defining the various fonts that Emacs will use.
 #+begin_src emacs-lisp
@@ -446,6 +510,14 @@ The modeline is the bottom status bar that appears in Emacs windows.  While you 
         doom-modeline-bar-width 5    ;; sets right bar width
         doom-modeline-persp-name t   ;; adds perspective name to modeline
         doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+#+end_src
+* PROJECTILE
+[[https://github.com/bbatsov/projectile][Projectile]] is a project interaction library for Emacs.  It should be noted that many projectile commands do not work if you have set “fish” as the “shell-file-name” for Emacs.
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-mode 1))
 #+end_src
 * PDF Tools
 [[https://github.com/vedang/pdf-tools][pdf-tools]] is a replacement of DocView for viewing PDF files inside Emacs.  It uses the poppler library, which also means that ‘pdf-tools’ can by used to modify PDFs.  I use to disable ‘display-line-numbers-mode’ in ‘pdf-view-mode’ because line numbers crash it.
