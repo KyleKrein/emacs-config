@@ -65,6 +65,7 @@
 - [[#tldr][TLDR]]
 - [[#transparency][Transparency]]
 - [[#which-key][WHICH-KEY]]
+- [[#emacs-on-android][Emacs on Android]]
 
 * IMPORTANT PROGRAMS TO LOAD FIRST
 ** Evil Mode
@@ -549,6 +550,8 @@ Install luacheck from your Linux distro’s repositories for flycheck to work co
 * Fonts
 Defining the various fonts that Emacs will use.
 #+begin_src emacs-lisp
+
+(unless (string-equal system-type "android") ;; I have no idea, how to make GUI emacs see the fonts.
 (set-face-attribute 'default nil
   :font "JetBrains Mono"
   :height 110
@@ -575,7 +578,7 @@ Defining the various fonts that Emacs will use.
 (add-to-list 'default-frame-alist '(font . "JetBrains Mono-11"))
 
 ;; Uncomment the following line if line spacing needs adjusting.
-(setq-default line-spacing 0.12)
+(setq-default line-spacing 0.12))
 #+end_src
 
 ** Zooming In/Out
@@ -1142,4 +1145,12 @@ With Emacs version 29, true transparency has been added.
   	  which-key-max-description-length 25
   	  which-key-allow-imprecise-window-fit nil
   	  which-key-separator " → " ))
+#+end_src
+
+* Emacs on Android
+#+begin_src emacs-lisp
+(when (string-equal system-type "android")
+  (setq touch-screen-keyboard-function t)
+  (setq touch-screen-display-keyboard t)
+)
 #+end_src

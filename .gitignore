@@ -1,2 +1,10 @@
-eln-cache
-config.el
+#Ignore all
+*
+#Allow theese (don't forget to put '!')
+!config.org
+!early-init.el
+!package.nix
+!flake.nix
+!init.el
+!.gitignore
+!flake.lock
