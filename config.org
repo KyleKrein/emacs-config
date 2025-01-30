@@ -213,6 +213,14 @@
 ** Emacs function launcher
 Launches emacs function as a window
 #+begin_src emacs-lisp
+(defun create-launcher-frame ()
+   (make-frame '((name . "emacs-run-launcher")
+                (minibuffer . only)
+                (fullscreen . 0)
+                (undecorated . t)
+                (internal-border-width . 10)
+                (width . 80)
+                (height . 11))))
 
 (defun emacs-run-launcher (func)
   "Create and select a frame called emacs-run-launcher which consists only of a minibuffer and has specific dimensions. Runs func on that frame, which is an emacs command that prompts you to select something and open it dmenu like behaviour. Delete the frame after that command has exited"
@@ -520,10 +528,15 @@ To use it, create a global keyboard shortcut with the following code
 ~emacsclient -cF "((visibility . nil))" -e "(emacs-run-emoji-picker)~
 #+begin_src emacs-lisp
 (defun emacs-run-emoji-picker ()
+  "Create and select a frame called emacs-run-launcher which consists only of a minibuffer and has specific dimensions. Runs func on that frame, which is an emacs command that prompts you to select something and open it dmenu like behaviour. Delete the frame after some time after that command has exited in order to keep copied text in system clipboard"
   (interactive)
-  (emacs-run-launcher (lambda () (progn (kylekrein/copy-emoji-to-clipboard)
-((sleep-for 60))))))
+(let ((launcher-frame (create-launcher-frame)))
+                  (with-selected-frame launcher-frame
+                    (kylekrein/copy-emoji-to-clipboard)
+		    (make-frame-invisible launcher-frame)
+                    (run-at-time "60 sec" nil (lambda (frame) (delete-frame frame)) launcher-frame))))
 #+end_src
+
 * FLYCHECK
 Install luacheck from your Linux distro’s repositories for flycheck to work correctly with lua files.  Install python-pylint for flycheck to work with python files.  Haskell works with flycheck as long as haskell-ghc or haskell-stack-ghc is installed.  For more information on language support for flycheck, [[https://www.flycheck.org/en/latest/languages.html][read this]].
 #+begin_src emacs-lisp
