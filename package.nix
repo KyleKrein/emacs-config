@@ -55,6 +55,7 @@
       with pkgs; [
         #nerd-fonts.jetbrains-mono
         #jetbrains-mono
+	unzip
       ];
 
     # Optionally override derivations.
