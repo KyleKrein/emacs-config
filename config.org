@@ -9,6 +9,8 @@
   - [[#recent-files][Recent Files]]
   - [[#general-keybindings][General Keybindings]]
 - [[#startup-time][Startup Time]]
+- [[#support-functions][Support functions]]
+  - [[#emacs-function-launcher][Emacs function launcher]]
 - [[#app-launcher][App Launcher]]
   - [[#standalone-run][Standalone run]]
 - [[#backup-files-tilda-files][Backup files (tilda files)]]
@@ -17,6 +19,9 @@
 - [[#diminish][Diminish]]
 - [[#dired-file-manager][DIRED (File manager)]]
 - [[#ediff][EDIFF]]
+- [[#emoji][Emoji]]
+  - [[#copy-to-clipboard][Copy to clipboard]]
+  - [[#standalone-emoji-picker][Standalone emoji picker]]
 - [[#flycheck][FLYCHECK]]
 - [[#fonts][Fonts]]
   - [[#zooming-inout][Zooming In/Out]]
@@ -203,6 +208,29 @@
 
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 #+end_src
+* Support functions
+** Emacs function launcher
+Launches emacs function as a window
+#+begin_src emacs-lisp
+
+(defun emacs-run-launcher (func)
+  "Create and select a frame called emacs-run-launcher which consists only of a minibuffer and has specific dimensions. Runs func on that frame, which is an emacs command that prompts you to select something and open it dmenu like behaviour. Delete the frame after that command has exited"
+  (interactive)
+  (with-selected-frame 
+    (make-frame '((name . "emacs-run-launcher")
+                  (minibuffer . only)
+                  (fullscreen . 0) ; no fullscreen
+                  (undecorated . t) ; remove title bar
+                  ;;(auto-raise . t) ; focus on this frame
+                  ;;(tool-bar-lines . 0)
+                  ;;(menu-bar-lines . 0)
+                  (internal-border-width . 10)
+                  (width . 80)
+                  (height . 11)))
+                  (unwind-protect
+                    (funcall func)
+                    (delete-frame))))
+#+end_src
 * App Launcher
 This code creates a menu to launch linux apps, that have Desktop entry.
 Code was taken from [[https://github.com/SebastienWae/app-launcher/blob/main/app-launcher.el][this awesome repo]]
@@ -366,25 +394,10 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
 ** Standalone run
 This code snippet runs app launcher without emacs frame
 To use it, create a global keyboard shortcut with the following code
-~emacsclient -cF "((visibility . nil))" -e "(emacs-run-launcher)~
+~emacsclient -cF "((visibility . nil))" -e "(emacs-run-app-launcher)~
 #+begin_src emacs-lisp
-(defun emacs-run-launcher ()
-  "Create and select a frame called emacs-run-launcher which consists only of a minibuffer and has specific dimensions. Runs app-launcher-run-app on that frame, which is an emacs command that prompts you to select an app and open it in a dmenu like behaviour. Delete the frame after that command has exited"
-  (interactive)
-  (with-selected-frame 
-    (make-frame '((name . "emacs-run-launcher")
-                  (minibuffer . only)
-                  (fullscreen . 0) ; no fullscreen
-                  (undecorated . t) ; remove title bar
-                  ;;(auto-raise . t) ; focus on this frame
-                  ;;(tool-bar-lines . 0)
-                  ;;(menu-bar-lines . 0)
-                  (internal-border-width . 10)
-                  (width . 80)
-                  (height . 11)))
-                  (unwind-protect
-                    (app-launcher-run-app)
-                    (delete-frame))))
+(defun emacs-run-app-launcher()
+  (emacs-run-launcher 'app-launcher-run-app))
 #+end_src
 * Backup files (tilda files)
 By default, Emacs creates automatic backups of files in their original directories, such “file.el” and the backup “file.el~”.  This leads to a lot of clutter, so let’s tell Emacs to put all backups that it creates in the ~TRASH~ directory.
@@ -477,6 +490,27 @@ This package implements hiding or abbreviation of the modeline displays (lighter
   (define-key ediff-mode-map "k" 'ediff-previous-difference))
 
 (add-hook 'ediff-mode-hook 'dt-ediff-hook)
+#+end_src
+* Emoji
+** Copy to clipboard
+#+begin_src emacs-lisp
+(use-package emojify :ensure t)
+(defun kylekrein/copy-emoji-to-clipboard()
+(interactive)
+  (require 'emojify)
+  ;;(let ((emoji (emoji--read-emoji))) ;;works without external package, but not so pretty
+  (let ((emoji (emojify-completing-read "Copy Emoji: ")))
+    (when emoji
+      (kill-new emoji)
+      (message "Copied: %s" emoji))))
+#+end_src
+** Standalone emoji picker
+To use it, create a global keyboard shortcut with the following code
+~emacsclient -cF "((visibility . nil))" -e "(emacs-run-emoji-picker)~
+#+begin_src emacs-lisp
+(defun emacs-run-emoji-picker ()
+  (interactive)
+  (emacs-run-launcher 'kylekrein/copy-emoji-to-clipboard))
 #+end_src
 * FLYCHECK
 Install luacheck from your Linux distro’s repositories for flycheck to work correctly with lua files.  Install python-pylint for flycheck to work with python files.  Haskell works with flycheck as long as haskell-ghc or haskell-stack-ghc is installed.  For more information on language support for flycheck, [[https://www.flycheck.org/en/latest/languages.html][read this]].
