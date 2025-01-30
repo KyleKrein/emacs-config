@@ -11,6 +11,7 @@
 - [[#startup-time][Startup Time]]
 - [[#support-functions][Support functions]]
   - [[#emacs-function-launcher][Emacs function launcher]]
+  - [[#copy-to-clipboard][Copy to clipboard]]
 - [[#app-launcher][App Launcher]]
   - [[#standalone-run][Standalone run]]
 - [[#backup-files-tilda-files][Backup files (tilda files)]]
@@ -20,7 +21,7 @@
 - [[#dired-file-manager][DIRED (File manager)]]
 - [[#ediff][EDIFF]]
 - [[#emoji][Emoji]]
-  - [[#copy-to-clipboard][Copy to clipboard]]
+  - [[#copy-to-clipboard-1][Copy to clipboard]]
   - [[#standalone-emoji-picker][Standalone emoji picker]]
 - [[#flycheck][FLYCHECK]]
 - [[#fonts][Fonts]]
@@ -230,6 +231,16 @@ Launches emacs function as a window
                   (unwind-protect
                     (funcall func)
                     (delete-frame))))
+#+end_src
+** Copy to clipboard
+Copies to both kill ring and system clipboard
+#+begin_src emacs-lisp
+;;(setq select-enable-primary t)
+(defun kylekrein/copy-to-clipboard (text)
+  (with-temp-buffer
+    (insert text)
+    (copy-region-as-kill (point-min) (point-max))
+    (clipboard-kill-region (point-min) (point-max))))
 #+end_src
 * App Launcher
 This code creates a menu to launch linux apps, that have Desktop entry.
@@ -496,13 +507,13 @@ This package implements hiding or abbreviation of the modeline displays (lighter
 #+begin_src emacs-lisp
 (use-package emojify :ensure t)
 (defun kylekrein/copy-emoji-to-clipboard()
-(interactive)
+  (interactive)
   (require 'emojify)
   ;;(let ((emoji (emoji--read-emoji))) ;;works without external package, but not so pretty
   (let ((emoji (emojify-completing-read "Copy Emoji: ")))
     (when emoji
-      (kill-new emoji)
-      (message "Copied: %s" emoji))))
+      (kylekrein/copy-to-clipboard emoji)
+      (message "Copied: %s" (current-kill 0 t)))))
 #+end_src
 ** Standalone emoji picker
 To use it, create a global keyboard shortcut with the following code
@@ -510,7 +521,8 @@ To use it, create a global keyboard shortcut with the following code
 #+begin_src emacs-lisp
 (defun emacs-run-emoji-picker ()
   (interactive)
-  (emacs-run-launcher 'kylekrein/copy-emoji-to-clipboard))
+  (emacs-run-launcher (lambda () (progn (kylekrein/copy-emoji-to-clipboard)
+((sleep-for 60))))))
 #+end_src
 * FLYCHECK
 Install luacheck from your Linux distro’s repositories for flycheck to work correctly with lua files.  Install python-pylint for flycheck to work with python files.  Haskell works with flycheck as long as haskell-ghc or haskell-stack-ghc is installed.  For more information on language support for flycheck, [[https://www.flycheck.org/en/latest/languages.html][read this]].
@@ -586,6 +598,7 @@ The following settings are simple modes that are enabled (or disabled) so that E
 (setq use-file-dialog nil)   ;; No file dialog
 (setq use-dialog-box nil)    ;; No dialog box
 (setq pop-up-windows nil)    ;; No popup windows
+(setq save-interprogram-paste-before-kill t) 
 #+end_src
 ** Battery info
 #+begin_src emacs-lisp
