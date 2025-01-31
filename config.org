@@ -28,6 +28,7 @@
   - [[#zooming-inout][Zooming In/Out]]
 - [[#sane-defaults][Sane defaults]]
   - [[#battery-info][Battery info]]
+- [[#epub-support-reader-in-emacs][Epub support (Reader in Emacs)]]
 - [[#magit][MAGIT]]
 - [[#minibuffer-escape][Minibuffer escape]]
 - [[#modeline][Modeline]]
@@ -36,7 +37,7 @@
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#org-mode][ORG MODE]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
-  - [[#enabling-org-bullets][Enabling Org Bullets]]
+  - [[#modern-org-mode][Modern Org Mode]]
   - [[#org-level-headers][Org Level Headers]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
 - [[#org-roam][ORG ROAM]]
@@ -100,6 +101,13 @@
   (define-key evil-motion-state-map (kbd "TAB") nil))
 ;; Setting RETURN key in org-mode to follow links
   (setq org-return-follows-link  t)
+#+end_src
+*** Terminal Evil
+#+begin_src emacs-lisp
+  (unless (display-graphic-p)
+          (require 'evil-terminal-cursor-changer)
+          (evil-terminal-cursor-changer-activate) ; or (etcc-on)
+          )
 #+end_src
 ** Recent Files
 #+begin_src emacs-lisp
@@ -622,6 +630,12 @@ The following settings are simple modes that are enabled (or disabled) so that E
                (battery))
   (display-battery-mode 1))
 #+end_src
+* Epub support (Reader in Emacs)
+[[https://depp.brause.cc/nov.el/][Nov.el]] is recommended by [[https://www.masteringemacs.org/book][Author of Mastering Emacs book]]
+#+begin_src emacs-lisp
+(use-package nov :ensure t)
+(add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+#+end_src
 * MAGIT
 Magit is a full-featured git client for Emacs.
 #+begin_src emacs-lisp
@@ -693,13 +707,13 @@ Adding rainbow coloring to parentheses.
       :init (add-hook 'org-mode-hook 'toc-org-enable))
 #+end_src
 
-** Enabling Org Bullets
-Org-bullets gives us attractive bullets rather than asterisks.
+** Modern Org Mode
 
 #+begin_src emacs-lisp
-  (add-hook 'org-mode-hook 'org-indent-mode)
-  (use-package org-bullets :ensure t)
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+;;;; Better Looking Bullets
+(add-hook 'org-mode-hook 'org-indent-mode)
+(use-package org-bullets :ensure t)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 ** Org Level Headers
 #+begin_src emacs-lisp
@@ -734,26 +748,26 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 * ORG ROAM
 ** Org Roam itself
 #+begin_src emacs-lisp
-    (use-package org-roam
-      :ensure t
-      :init
-      (setq org-roam-v2-ack t)
-      :custom
-      (org-roam-directory "~/Documents/org")
-      (org-roam-completion-everywhere t)
-      (org-roam-capture-templates
-        '(("d" "default" plain
-           "%?"
-           :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
-           :unnarrowed t)
-  	))
-      (org-roam-dailies-capture-templates
-       '(("d" "default" entry "* %<%I:%M %p>: %?"
-         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-      :config
-      (require 'org-roam-dailies) ;; Ensure the keymap is available
-      (org-roam-db-autosync-mode)
-      (org-roam-setup))
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/Documents/org")
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+    '(("d" "default" plain
+       "%?"
+       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
+       :unnarrowed t)
+	))
+  (org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %<%I:%M %p>: %?"
+     :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+  :config
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (org-roam-db-autosync-mode)
+  (org-roam-setup))
 #+end_src
 ** Org Roam UI
 #+begin_src emacs-lisp
@@ -778,15 +792,14 @@ Org-tempo is not a separate package but a module within org that can be enabled.
     (interactive)
     (setq org-agenda-files (kylekrein/org-roam-list-notes-by-tag "Project")))
 
-  ;; Build the agenda list the first time for the session
-  (kylekrein/org-roam-refresh-agenda-list)
-
-
 
   (setq org-agenda-files nil
         org-roam-node-display-template "${title} ${tags}"
         org-agenda-start-on-weekday 1 ;; Week starts on Monday instead of Sunday
         )
+  ;; Build the agenda list the first time for the session
+  (kylekrein/org-roam-refresh-agenda-list)
+
 #+end_src
 ** Inbox
 #+begin_src emacs-lisp
