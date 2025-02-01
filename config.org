@@ -59,6 +59,8 @@
 - [[#transparency][Transparency]]
 - [[#which-key][WHICH-KEY]]
 - [[#emacs-on-android][Emacs on Android]]
+  - [[#fonts-1][Fonts]]
+  - [[#settings][Settings]]
 
 * IMPORTANT PROGRAMS TO LOAD FIRST
 ** Recent Files
@@ -924,16 +926,20 @@ With Emacs version 29, true transparency has been added.
 #+end_src
 
 * Emacs on Android
+** Fonts
+All fonts on Android must be in *~/fonts* directory
+** Settings
 #+begin_src emacs-lisp
-(when (string-equal system-type "android")
-  (setq touch-screen-keyboard-function t)
-  (setq touch-screen-display-keyboard t)
+  (when (string-equal system-type "android")
+    ;;Write all android settings here
+    (setq touch-screen-keyboard-function t)
+    (setq touch-screen-display-keyboard t)
 
-  (menu-bar-mode 1)           ;; Enable the menu bar 
-  (scroll-bar-mode 1)         ;; Enable the scroll bar
-  (tool-bar-mode 1)           ;;Enable the tool bar
-  (setq use-file-dialog t)   ;; file dialog
-  (setq use-dialog-box t)    ;; dialog box
-  (setq pop-up-windows t)    ;; popup windows
-)
+    (menu-bar-mode 1)           ;; Enable the menu bar 
+    (scroll-bar-mode 1)         ;; Enable the scroll bar
+    (tool-bar-mode 1)           ;;Enable the tool bar
+    (setq use-file-dialog t)   ;; file dialog
+    (setq use-dialog-box t)    ;; dialog box
+    (setq pop-up-windows t)    ;; popup windows
+  )
 #+end_src
