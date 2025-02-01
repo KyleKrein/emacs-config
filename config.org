@@ -70,6 +70,8 @@
 ** Keybindings
 #+begin_src emacs-lisp
 (global-set-key [remap list-buffers] 'ibuffer)
+(global-set-key (kbd "M-o") 'other-window)
+;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
 #+end_src
 * Support functions
 ** Emacs function launcher
@@ -404,6 +406,7 @@ The following settings are simple modes that are enabled (or disabled) so that E
 (global-auto-revert-mode t)  ;; Automatically show changes if the file has changed
 (global-display-line-numbers-mode 1) ;; Display line numbers
 (global-visual-line-mode t)  ;; Enable truncated lines
+(winner-mode t) ;; Undo (C-c <left>) and Redo (C-c <right>) for windows
 #+end_src
 ** Battery info
 #+begin_src emacs-lisp
