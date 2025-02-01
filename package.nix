@@ -3,6 +3,9 @@
   x11 ? false,
   ...
 }: let
+  configFile = pkgs.tangleOrgBabelFile "default.el" ./config.org {
+    languages = ["emacs-lisp"];
+  };
   emacs = pkgs.emacsWithPackagesFromUsePackage {
     # Your Emacs config file. Org mode babel files are also
     # supported.
@@ -10,7 +13,7 @@
     #     they're being parsed in nix, which lacks unicode
     #     support.
     # config = ./emacs.org;
-    config = ./config.org;
+    config = configFile;
 
     # Whether to include your config as a default init file.
     # If being bool, the value of config is used.
@@ -21,14 +24,12 @@
     #     src = ./emacs.el;
     #     inherit (config.xdg) configHome dataHome;
     #   };
-    defaultInitFile = pkgs.tangleOrgBabelFile "default.el" ./config.org {
-      languages = ["emacs-lisp"];
-    };
+    defaultInitFile = true;
     # Package is optional, defaults to pkgs.emacs
     package =
       if x11
       then pkgs.emacs-unstable
-      else pkgs.emacs-pgtk;
+      else pkgs.emacs-unstable-pgtk;
 
     # By default emacsWithPackagesFromUsePackage will only pull in
     # packages with `:ensure`, `:ensure t` or `:ensure <package name>`.
@@ -46,7 +47,7 @@
     # Note that this is NOT recommended unless you have something like
     # `#+PROPERTY: header-args:emacs-lisp :tangle yes` in your config,
     # which defaults `:tangle` to `yes`.
-    alwaysTangle = true;
+    alwaysTangle = false;
 
     # Optionally provide extra packages not in the configuration file.
     # This can also include extra executables to be run by Emacs (linters,
@@ -55,7 +56,11 @@
       with pkgs; [
         #nerd-fonts.jetbrains-mono
         #jetbrains-mono
-	unzip
+        unzip
+        librsvg
+        imagemagick
+        fontconfig
+        freetype
       ];
 
     # Optionally override derivations.
@@ -69,7 +74,6 @@
     fontDirectories = with pkgs; [
       jetbrains-mono
       ubuntu-classic
-      nerd-fonts.jetbrains-mono
       nerd-fonts.symbols-only
     ];
   };
