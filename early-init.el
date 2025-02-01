@@ -5,7 +5,6 @@
     (setenv "PATH" (concat (getenv "PATH") ":" termuxpath))
     (setq exec-path (append exec-path (list termuxpath))))
   (let ((termuxlib "/data/data/com.termux/files/usr/lib"))
-    (setenv "PATH" (concat (getenv "PATH") ":" termuxlib))
-    (setq exec-path (append exec-path (list termuxlib)))
+    (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH") ":" termuxlib)))
 )
 
