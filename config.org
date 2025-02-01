@@ -359,7 +359,6 @@ To use it, create a global keyboard shortcut with the following code
 Defining the various fonts that Emacs will use.
 #+begin_src emacs-lisp
 
-(unless (string-equal system-type "android") ;; I have no idea, how to make GUI emacs see the fonts.
 (set-face-attribute 'default nil
   :font "JetBrains Mono"
   :height 110
@@ -386,7 +385,7 @@ Defining the various fonts that Emacs will use.
 (add-to-list 'default-frame-alist '(font . "JetBrains Mono-11"))
 
 ;; Uncomment the following line if line spacing needs adjusting.
-(setq-default line-spacing 0.12))
+(setq-default line-spacing 0.12)
 #+end_src
 
 * Sane defaults
