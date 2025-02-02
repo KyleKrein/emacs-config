@@ -637,7 +637,7 @@ This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][her
           (lambda (remaining new-time msg)
               (alert (format "In %s minutes" remaining)
                :title msg
-               :severity 'high
+               :severity 'moderate
   	     :category 'org-agenda
   	     :id (intern msg))))
 
