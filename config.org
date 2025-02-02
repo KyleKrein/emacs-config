@@ -152,7 +152,7 @@ Found the code [[https://www.reddit.com/r/emacs/comments/18xvtns/emacs_notificat
                          ((eq severity 'low) 'low)
                          ((eq severity 'trivial) 'low)
                          (t 'normal))))
-        (icon (or (plist-get info :icon) "~/.emacs.d/emax.svg")))
+        (icon (or (plist-get info :icon) alert-default-icon)))
     (android-notifications-notify
      :title title
      :body body
