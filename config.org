@@ -127,6 +127,12 @@ Copies to both kill ring and system clipboard
        (file-exists-p "/proc/sys/fs/binfmt_misc/WSLInterop")))
 #+end_src
 ** Notifications
+*** Alert package
+#+begin_src emacs-lisp
+ (use-package alert
+    :ensure t
+    )
+#+end_src
 *** Android notifications
 Found the code [[https://www.reddit.com/r/emacs/comments/18xvtns/emacs_notifications_on_linux_and_android/][here]]
 #+begin_src emacs-lisp
@@ -166,14 +172,11 @@ Using [[https://github.com/gkowzan/alert-toast][Alert toast]]
 #+end_src
 *** Setting notification backend
 #+begin_src emacs-lisp
-  (use-package alert
-    :ensure t
-    :config
-    (setq alert-default-style
+(setq alert-default-style
   	(cond
   	 ((eq system-type 'android) 'android-notifications)
   	 ((kylekrein/detect-wsl) 'toast)
-  	 (t 'libnotify))))
+  	 (t 'libnotify)))
 #+end_src
 * App Launcher
 This code creates a menu to launch linux apps, that have Desktop entry.
