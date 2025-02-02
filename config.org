@@ -588,7 +588,7 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 #+end_src
 ** Org Agenda Notifications
 Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lispp
      (use-package org-wild-notifier
        :ensure t
        :after 'org
@@ -604,6 +604,20 @@ Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifi
          alert-fade-time 50
          )
 
+#+end_src
+
+#+begin_src emacs-lisp
+;; Org-alert configuration
+(use-package org-alert
+  :ensure t
+  :after org
+  :config
+  (progn ;; Setup
+    (setq org-alert-interval 300
+          org-alert-notification-title "Org Agenda Reminder")
+    (org-alert-enable)
+    )
+  )
 #+end_src
 * ORG ROAM
 ** Org Roam itself
