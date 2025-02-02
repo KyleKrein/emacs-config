@@ -587,7 +587,9 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 (require 'org-tempo)
 #+end_src
 ** Org Agenda Notifications
+*** Org wild notifier
 Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
+But it doesn't work on Android in GUI because of async (interprocess communications)
 #+begin_src emacs-lispp
      (use-package org-wild-notifier
        :ensure t
@@ -605,8 +607,9 @@ Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifi
          )
 
 #+end_src
-
-#+begin_src emacs-lisp
+*** Org alert
+Actually works, but is too basic
+#+begin_src emacs-lispp
 ;; Org-alert configuration
 (use-package org-alert
   :ensure t
@@ -618,6 +621,42 @@ Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifi
     (org-alert-enable)
     )
   )
+#+end_src
+*** Appt
+Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
+This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][here]].
+#+begin_src emacs-lisp
+  (use-package emacs
+    :config
+    ;; start warning 60 minutes before the appointment
+    (setq appt-message-warning-time 60)
+
+    ;; warn me every 5 minutes
+    (setq appt-display-interval 15)
+    (setq appt-disp-window-function
+          (lambda (remaining new-time msg)
+              (alert (format "In %s minutes" remaining)
+               :title msg
+               :severity 'high
+  	     :category 'org-agenda
+  	     :id (intern msg))))
+
+    (advice-add 'appt-check
+                :before
+                (lambda (&rest args)
+                  (org-agenda-to-appt t)))
+
+    (appt-activate t))
+(setq alert-fade-time 50)
+#+end_src
+**** Appt on modeline
+#+begin_src emacs-lisp
+  (use-package org-upcoming-modeline
+    :ensure t
+    :after org
+    :config
+    (setq appt-display-mode-line nil)
+    (org-upcoming-modeline-mode))
 #+end_src
 * ORG ROAM
 ** Org Roam itself
