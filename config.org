@@ -7,6 +7,7 @@
 - [[#important-programs-to-load-first][IMPORTANT PROGRAMS TO LOAD FIRST]]
   - [[#recent-files][Recent Files]]
   - [[#keybindings][Keybindings]]
+  - [[#focus-new-windows][Focus new windows]]
 - [[#support-functions][Support functions]]
   - [[#emacs-function-launcher][Emacs function launcher]]
   - [[#copy-to-clipboard][Copy to clipboard]]
@@ -55,7 +56,7 @@
   - [[#nerd-icons-completion][Nerd Icons Completion]]
 - [[#buffer-move][Buffer Move]]
 - [[#completions][Completions]]
-  - [[#vertico][Vertico]]
+  - [[#orderless][Orderless]]
   - [[#fido-mode][Fido-mode]]
   - [[#descriptions][Descriptions]]
 - [[#communication][Communication]]
@@ -78,6 +79,39 @@
 (global-set-key [remap list-buffers] 'ibuffer)
 (global-set-key (kbd "M-o") 'other-window)
 ;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
+#+end_src
+** Focus new windows
+Found this [[https://emacs.stackexchange.com/questions/21770/automatically-switch-focus-to-new-window][here]] and [[https://github.com/snackon/Witchmacs#creating-a-new-window-switches-your-cursor-to-it][here]]
+#+begin_src emacs-lisp
+  (defun split-and-follow-horizontally ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+
+  (defun split-and-follow-vertically ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+
+  (use-package emacs
+    :bind (:map ctl-x-map
+    ("2" . split-and-follow-horizontally)
+    ("3" . split-and-follow-vertically))
+    :custom
+    (info-lookup-other-window-flag t)
+    (help-window-select t "Switch to help buffers automatically"))
+;; Auto-select new Info buffer window when it’s created.
+  (advice-add 'info-lookup :after
+          (lambda (&rest _)
+        (when-let (window (get-buffer-window "*info*"))
+          (select-window window))))
+  
+  ;; Auto-select new window after splitting. Splitting commands almost
+  ;;,all use `split-window’, so advice the function for auto selection.
+  (advice-add 'split-window :after
+          (lambda (&rest _) (select-window (get-lru-window))))
 #+end_src
 * Support functions
 ** Emacs function launcher
@@ -354,26 +388,73 @@ By default, Emacs creates automatic backups of files in their original directori
 * Dashboard
 Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
 #+begin_src emacs-lisp
-(use-package dashboard
-  :ensure t 
-  :init
-  (setq initial-buffer-choice 'dashboard-open)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
-  ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-  ;;(setq dashboard-startup-banner "/home/dt/.config/emacs/images/emacs-dash.png")  ;; use custom image as banner
-  (setq dashboard-center-content nil) ;; set to 't' for centered content
-  (setq dashboard-items '((recents . 5)
-                          (agenda . 5 )
-                          (bookmarks . 3)
-                          (projects . 3)
-                          (registers . 3)))
-  :custom
-  (dashboard-modify-heading-icons '((recents . "file-text")
-                                    (bookmarks . "book")))
-  :config
-  (dashboard-setup-startup-hook))
+  (use-package dashboard
+    :ensure t 
+    :after nerd-icons
+    :init
+    (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
+    (setq dashboard-week-agenda t)
+    ;;(setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-display-icons-p t)     ; display icons on both GUI and terminal
+    (setq dashboard-icon-type 'nerd-icons) ; use `nerd-icons' package
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-projects-backend 'project-el)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+    (setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
+    ;;(setq dashboard-startup-banner "/home/dt/.config/emacs/images/emacs-dash.png")  ;; use custom image as banner
+    (setq dashboard-center-content nil) ;; set to 't' for centered content
+    (setq dashboard-items '((recents . 5)
+                            (agenda . 5 )
+                            (bookmarks . 3)
+                            (projects . 3)
+                            (registers . 3)))
+    (setq dashboard-startupify-list '(dashboard-insert-banner
+                                  dashboard-insert-newline
+                                  dashboard-insert-banner-title
+                                  dashboard-insert-newline
+                                  dashboard-insert-navigator
+                                  dashboard-insert-newline
+                                  dashboard-insert-init-info
+                                  dashboard-insert-items
+                                  dashboard-insert-newline
+                                  dashboard-insert-footer))
+    (setq dashboard-navigator-buttons
+      `(;; Line 1
+        ((,(nerd-icons-mdicon "nf-md-inbox" :height 1.1 :v-adjust 0.0)
+          "To Inbox"
+          "Capture to inbox"
+          (lambda (&rest _) (kylekrein/org-roam-capture-inbox)))
+
+         (,(nerd-icons-mdicon "nf-md-calendar" :height 1.1 :v-adjust 0.0)
+          "Agenda"
+          "View agenda"
+          (lambda (&rest _) (org-agenda)))
+
+         (,(nerd-icons-mdicon "nf-md-note" :height 1.1 :v-adjust 0.0)
+          "Note"
+          "Find a note"
+          (lambda (&rest _) (org-roam-node-find))))
+
+        ;; Line 2
+        ((,(nerd-icons-mdicon "nf-md-sync" :height 1.1 :v-adjust 0.0)
+          "Sync"
+          "Sync org-roam and agenda"
+          (lambda (&rest _)
+            (org-roam-db-sync)
+            (org-agenda-redo)
+            (message "Org-Roam and Agenda synced!")))
+
+         (,(nerd-icons-mdicon "nf-md-calendar_today" :height 1.1 :v-adjust 0.0)
+          "Today"
+          "View today's tasks"
+          (lambda (&rest _) (org-agenda nil "a"))))))
+
+    :custom
+    (dashboard-modify-heading-icons '((recents   . "nf-oct-file_text")
+                                (bookmarks . "nf-oct-book")))
+    :config
+    (dashboard-setup-startup-hook))
 #+end_src
 * Diminish
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
@@ -965,77 +1046,38 @@ one, an error is signaled."
       (select-window other-win))))
   #+end_src
 * Completions
-** Vertico
-[[https://github.com/minad/vertico][Vertico]] provides a performant and minimalistic vertical completion UI based on the default completion system.
-#+begin_src emacs-lisp
-  ;; Enable vertico
-  (use-package vertico
-    :ensure t
-    :custom
-    ;; (vertico-scroll-margin 0) ;; Different scroll margin
-    ;; (vertico-count 20) ;; Show more candidates
-    ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-    (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
-    :bind (:map vertico-map
-		("C-j" . vertico-next)
-		("C-k" . vertico-previous)
-		:map minibuffer-local-map
-		("C-h" . backward-kill-word)
-		)
-    :init
-    (vertico-mode))
-
-(vertico-mode t) ;; enable vertico for all buffers
-  ;; Persist history over Emacs restarts. Vertico sorts by history position.
-  (use-package savehist
-    :init
-    (savehist-mode))
-
-  ;; A few more useful configurations...
-  (use-package emacs
-    :custom
-    ;; Support opening new minibuffers from inside existing minibuffers.
-    (enable-recursive-minibuffers t)
-    ;; Hide commands in M-x which do not work in the current mode.  Vertico
-    ;; commands are hidden in normal buffers. This setting is useful beyond
-    ;; Vertico.
-    (read-extended-command-predicate #'command-completion-default-include-p)
-    :init
-    ;; Add prompt indicator to `completing-read-multiple'.
-    ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-    (defun crm-indicator (args)
-      (cons (format "[CRM%s] %s"
-                    (replace-regexp-in-string
-                     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                     crm-separator)
-                    (car args))
-            (cdr args)))
-    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-    ;; Do not allow the cursor in the minibuffer prompt
-    (setq minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt))
-    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
-  #+end_src
-  ** Orderless
+** Orderless
   Better searching
   #+begin_src emacs-lisp
-;; Optionally use the `orderless' completion style.
-(use-package orderless
-  :ensure t
-  :custom
-  ;; Configure a custom style dispatcher (see the Consult wiki)
-  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
-  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles partial-completion)))))
+    ;; Optionally use the `orderless' completion style.
+    (use-package orderless
+      :ensure t
+      :custom
+      ;; Configure a custom style dispatcher (see the Consult wiki)
+      ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
+      ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+      (completion-styles '(orderless flex basic partial-completion))
+
+      (completion-category-defaults nil)
+      (completion-category-overrides '((file (styles partial-completion)))))
   #+end_src
 ** Fido-mode
 Enables fido completion in emacs.
-#+begin_src emacs-lispp
+#+begin_src emacs-lisp
+(global-completion-preview-mode)
 (fido-mode t)
+(savehist-mode t)
 (fido-vertical-mode t)
+(setf completion-auto-select t ;; Show completion on first call
+      completion-auto-help 'visible ;; Display *Completions* upon first request
+      completions-format 'one-column ;; Use only one column
+      completions-sort 'historical ;; Order based on minibuffer history
+      completions-max-height 20 ;; Limit completions to 15 (completions start at line 5)
+      completion-ignore-case t)
+(define-key icomplete-minibuffer-map (kbd "SPC") 'self-insert-command) ;; Allows to type spaces, if no completions available
+
+;; Have TAB complete using the first option and continue, instead of popping up the *Completions* buffer
+(define-key icomplete-minibuffer-map [remap minibuffer-complete] 'icomplete-force-complete)
 #+end_src
 ** Descriptions
 *** Marginalia
