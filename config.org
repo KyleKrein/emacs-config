@@ -10,6 +10,8 @@
 - [[#support-functions][Support functions]]
   - [[#emacs-function-launcher][Emacs function launcher]]
   - [[#copy-to-clipboard][Copy to clipboard]]
+  - [[#detect-wsl][Detect WSL]]
+  - [[#notifications][Notifications]]
 - [[#app-launcher][App Launcher]]
   - [[#standalone-run][Standalone run]]
 - [[#backup-files-tilda-files][Backup files (tilda files)]]
@@ -33,11 +35,13 @@
   - [[#modern-org-mode][Modern Org Mode]]
   - [[#org-level-headers][Org Level Headers]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
+  - [[#org-agenda-notifications][Org Agenda Notifications]]
 - [[#org-roam][ORG ROAM]]
   - [[#org-roam-itself][Org Roam itself]]
   - [[#org-roam-ui][Org Roam UI]]
   - [[#org-agenda][Org Agenda]]
   - [[#inbox][Inbox]]
+  - [[#capture-a-task-directly-into-project][Capture a task directly into Project]]
   - [[#todos-in-today][Todos in Today]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#shells-and-terminals][SHELLS AND TERMINALS]]
@@ -54,6 +58,8 @@
   - [[#vertico][Vertico]]
   - [[#fido-mode][Fido-mode]]
   - [[#descriptions][Descriptions]]
+- [[#communication][Communication]]
+  - [[#telegram][Telegram]]
 - [[#theme][Theme]]
   - [[#theme-loading][Theme loading]]
 - [[#transparency][Transparency]]
@@ -113,6 +119,61 @@ Copies to both kill ring and system clipboard
     (insert text)
     (copy-region-as-kill (point-min) (point-max))
     (clipboard-kill-region (point-min) (point-max))))
+#+end_src
+** Detect WSL
+#+begin_src emacs-lisp
+(defun kylekrein/detect-wsl ()
+  (and (eq system-type 'gnu/linux)
+       (file-exists-p "/proc/sys/fs/binfmt_misc/WSLInterop")))
+#+end_src
+** Notifications
+*** Android notifications
+Found the code [[https://www.reddit.com/r/emacs/comments/18xvtns/emacs_notifications_on_linux_and_android/][here]]
+#+begin_src emacs-lisp
+(require 'alert)
+
+(defun alert-android-notifications-notify (info)
+  (unless (eq system-type 'android)
+    (error "Android notifications are only supported on Android systems"))
+  
+  "Send INFO using android-notifications-notify."
+  (let ((title (or (plist-get info :title) "Org Alert Reminder"))
+        (body (or (plist-get info :message) ""))
+        (urgency (let ((severity (plist-get info :severity)))
+                   (cond ((eq severity 'urgent) 'critical)
+                         ((eq severity 'high) 'critical)
+                         ((eq severity 'moderate) 'normal)
+                         ((eq severity 'low) 'low)
+                         ((eq severity 'trivial) 'low)
+                         (t 'normal))))
+        (icon (or (plist-get info :icon) alert-default-icon)))
+    (android-notifications-notify
+     :title title
+     :body body
+     :urgency urgency
+     :icon icon
+     )))
+
+(alert-define-style 'android-notifications :title "Android Notifications"
+                    :notifier #'alert-android-notifications-notify
+                    )
+
+#+end_src
+*** Windows Notifications
+Using [[https://github.com/gkowzan/alert-toast][Alert toast]]
+#+begin_src emacs-lisp
+(use-package alert-toast :ensure t :after alert)
+#+end_src
+*** Setting notification backend
+#+begin_src emacs-lisp
+  (use-package alert
+    :ensure t
+    :config
+    (setq alert-default-style
+  	(cond
+  	 ((eq system-type 'android) 'android-notifications)
+  	 ((kylekrein/detect-wsl) 'toast)
+  	 (t 'libnotify))))
 #+end_src
 * App Launcher
 This code creates a menu to launch linux apps, that have Desktop entry.
@@ -522,29 +583,58 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 #+begin_src emacs-lisp 
 (require 'org-tempo)
 #+end_src
+** Org Agenda Notifications
+Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
+#+begin_src emacs-lisp
+     (use-package org-wild-notifier
+       :ensure t
+       :after 'org
+     )
+  (org-wild-notifier-mode)
+       (setq alert-default-style 'libnotify
+         org-wild-notifier-alert-time '(0 5 10 60)
+         org-wild-notifier-day-wide-alert-times "7:00"
+         org-wild-notifier-keyword-whitelist nil
+         ;; good for testing
+         org-wild-notifier--alert-severity 'high
+         org-wild-notifier-display-time-format-string "%H:%M"
+         alert-fade-time 50
+         )
+
+#+end_src
 * ORG ROAM
 ** Org Roam itself
 #+begin_src emacs-lisp
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-v2-ack t)
-  :custom
-  (org-roam-directory "~/Documents/org")
-  (org-roam-completion-everywhere t)
-  (org-roam-capture-templates
-    '(("d" "default" plain
-       "%?"
-       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
-       :unnarrowed t)
-	))
-  (org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %<%I:%M %p>: %?"
-     :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-  :config
-  (require 'org-roam-dailies) ;; Ensure the keymap is available
-  (org-roam-db-autosync-mode)
-  (org-roam-setup))
+  (use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/Documents/org")
+    (org-roam-completion-everywhere t)
+    (org-roam-capture-templates
+      '(("d" "default" plain
+         "%?"
+         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
+         :unnarrowed t)
+         ("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n* Dates\n\n"
+         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n#+filetags: Project")
+         :unnarrowed t))
+  	)
+    (org-roam-dailies-capture-templates
+     '(("d" "default" entry "* %<%I:%M %p>: %?"
+       :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n f" . org-roam-node-find)
+           ("C-c n i" . org-roam-node-insert)
+  	 :map org-mode-map
+  	 ("C-M-i"    . completion-at-point))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (org-roam-db-autosync-mode)
+    (org-roam-setup))
 #+end_src
 ** Org Roam UI
 #+begin_src emacs-lisp
@@ -554,7 +644,7 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 #+end_src
 ** Org Agenda
 #+begin_src emacs-lisp
-(require 'org-roam-node)
+  (require 'org-roam-node)
   (defun kylekrein/org-roam-filter-by-tag (tag-name)
     (lambda (node)
       (member tag-name (org-roam-node-tags node))))
@@ -576,7 +666,6 @@ Org-tempo is not a separate package but a module within org that can be enabled.
         )
   ;; Build the agenda list the first time for the session
   (kylekrein/org-roam-refresh-agenda-list)
-
 #+end_src
 ** Inbox
 #+begin_src emacs-lisp
@@ -584,7 +673,38 @@ Org-tempo is not a separate package but a module within org that can be enabled.
   (interactive)
   (org-roam-capture- :node (org-roam-node-create)
                      :templates '(("i" "inbox" plain "* %?"
-                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
+                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n#+category: Inbox\n#+filetags: Project")))))
+(global-set-key (kbd "C-c n b") #'kylekrein/org-roam-capture-inbox)
+#+end_src
+** Capture a task directly into Project
+Doesn't work for now
+#+begin_src emacs-lisp
+(defun kylekrein/org-roam-project-finalize-hook ()
+  "Adds the captured project file to `org-agenda-files' if the
+capture was not aborted."
+  ;; Remove the hook since it was added temporarily
+  (remove-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
+
+  ;; Add project file to the agenda list if the capture was confirmed
+  (unless org-note-abort
+    (with-current-buffer (org-capture-get :buffer)
+      (add-to-list 'org-agenda-files (buffer-file-name)))))
+
+(defun kylekrein/org-roam-capture-task ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
+
+  ;; Capture the new task, creating the project file if necessary
+  (org-roam-capture- :node (org-roam-node-read
+                            nil
+                            (kylekrein/org-roam-filter-by-tag "Project"))
+                     :templates '(("p" "project" plain "* TODO %?"
+                                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
+                                                          ("Tasks"))))))
+
+(global-set-key (kbd "C-c n t") #'kylekrein/org-roam-capture-task)
 #+end_src
 ** Todos in Today
 Automatically copies all *DONE* TODOs to Today's daily
@@ -882,6 +1002,18 @@ Descriptions for completions
     ;; the mode gets enabled right away. Note that this forces loading the
     ;; package.
     (marginalia-mode))
+#+end_src
+* Communication
+** Telegram
+[[https://github.com/zevlg/telega.el][Telega]] is a telegram client for Emacs.
+It doesn't work for unknown reason
+#+begin_src emacs-lispp
+  (use-package telega
+    :ensure t
+    :init
+    (setq telega-use-docker nil)
+    (setq telega-use-images nil)
+    :defer t)
 #+end_src
 * Theme
 [[https://emacsfodder.github.io/emacs-theme-editor/][Emacs Theme Editor]]
