@@ -32,6 +32,7 @@
 - [[#pdf-tools][PDF Tools]]
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#org-mode][ORG MODE]]
+  - [[#enter-folows-link][Enter folows link]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#modern-org-mode][Modern Org Mode]]
   - [[#org-level-headers][Org Level Headers]]
@@ -623,6 +624,10 @@ Adding rainbow coloring to parentheses.
            (clojure-mode . rainbow-delimiters-mode)))
 #+end_src
 * ORG MODE
+** Enter folows link
+#+begin_src emacs-lisp
+(setq org-return-follows-link  t)
+#+end_src
 ** Enabling Table of Contents
 #+begin_src emacs-lisp
   (setq org-directory "~/Documents/org")
@@ -1189,7 +1194,8 @@ It doesn't work for unknown reason
 * Transparency
 With Emacs version 29, true transparency has been added.
 #+begin_src emacs-lisp
-(add-to-list 'default-frame-alist '(alpha-background . 90)) ; For all new frames henceforth
+  (unless (kylekrein/detect-wsl)
+    (add-to-list 'default-frame-alist '(alpha-background . 90))) ; For all new frames henceforth
 #+end_src
 * WHICH-KEY
 #+begin_src emacs-lisp
