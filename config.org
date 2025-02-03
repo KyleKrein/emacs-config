@@ -69,6 +69,8 @@
 - [[#emacs-on-android][Emacs on Android]]
   - [[#fonts-1][Fonts]]
   - [[#settings][Settings]]
+- [[#emacs-on-wsl][Emacs on WSL]]
+  - [[#clipboard-fix][Clipboard fix]]
 
 * IMPORTANT PROGRAMS TO LOAD FIRST
 ** Recent Files
@@ -1226,5 +1228,16 @@ All fonts on Android must be in *~/fonts* directory
     (setq use-file-dialog t)   ;; file dialog
     (setq use-dialog-box t)    ;; dialog box
     (setq pop-up-windows t)    ;; popup windows
+  )
+#+end_src
+* Emacs on WSL
+** Clipboard fix
+Found the fix [[https://www.lukas-barth.net/blog/emacs-wsl-copy-clipboard/][here]]
+#+begin_src emacs-lisp
+  (when (kylekrein/detect-wsl)
+    (setq select-active-regions nil)
+    (setq select-enable-clipboard 't)
+    (setq select-enable-primary nil)
+    (setq interprogram-cut-function #'gui-select-text)
   )
 #+end_src
