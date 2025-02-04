@@ -31,20 +31,24 @@
 - [[#modeline][Modeline]]
 - [[#pdf-tools][PDF Tools]]
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
+- [[#calendar][Calendar]]
 - [[#org-mode][ORG MODE]]
   - [[#enter-folows-link][Enter folows link]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#modern-org-mode][Modern Org Mode]]
   - [[#org-level-headers][Org Level Headers]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
-  - [[#org-agenda-notifications][Org Agenda Notifications]]
+  - [[#insert-pictures][Insert pictures]]
 - [[#org-roam][ORG ROAM]]
   - [[#org-roam-itself][Org Roam itself]]
   - [[#org-roam-ui][Org Roam UI]]
-  - [[#org-agenda][Org Agenda]]
   - [[#inbox][Inbox]]
   - [[#capture-a-task-directly-into-project][Capture a task directly into Project]]
+- [[#org-agenda][Org Agenda]]
+  - [[#todos-only-from-projects][TODOs only from Projects]]
   - [[#todos-in-today][Todos in Today]]
+  - [[#auto-refresh-agenda-view][Auto refresh agenda view]]
+  - [[#notifications-1][Notifications]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#shells-and-terminals][SHELLS AND TERMINALS]]
   - [[#eshell][Eshell]]
@@ -623,6 +627,28 @@ Adding rainbow coloring to parentheses.
     :hook ((emacs-lisp-mode . rainbow-delimiters-mode)
            (clojure-mode . rainbow-delimiters-mode)))
 #+end_src
+* Calendar
+#+begin_src emacs-lisp
+(setq calendar-date-style "european")
+(setq calendar-week-start-day 1)
+
+;;Line truncation
+(defun kylekrein/truncate-calendar-hook ()
+  "Turn line truncation on."
+  (toggle-truncate-lines 1))
+
+(add-hook 'calendar-mode-hook #'kylekrein/truncate-calendar-hook)
+
+;;Current month is the first
+(add-hook 'calendar-initial-window-hook #'calendar-scroll-left)
+
+;;Calendar in org agenda
+(setq org-agenda-include-diary t)
+
+(defadvice revert-buffer (after refresh-org-agenda-on-revert activate)
+(if (member (buffer-file-name (current-buffer)) org-agenda-files)
+    (org-agenda-redo-all t)))
+#+end_src
 * ORG MODE
 ** Enter folows link
 #+begin_src emacs-lisp
@@ -675,7 +701,178 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 #+begin_src emacs-lisp 
 (require 'org-tempo)
 #+end_src
-** Org Agenda Notifications
+** Insert pictures
+[[https://github.com/abo-abo/org-download][Org-download]]
+#+begin_src emacs-lisp
+(use-package org-download :ensure t)
+(require 'org-download)
+;; Drag-and-drop to `dired`
+(add-hook 'dired-mode-hook 'org-download-enable)
+
+(setq org-download-method 'attach) ;;attach or directory
+;;    (setq-default org-download-image-dir "~/Pictures/foo") ;;for directory
+#+end_src
+* ORG ROAM
+** Org Roam itself
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/Documents/org")
+    (org-roam-completion-everywhere t)
+    (org-roam-capture-templates
+      '(("d" "default" plain
+         "%?"
+         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
+         :unnarrowed t)
+         ("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n* Dates\n\n"
+         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n#+filetags: Project")
+         :unnarrowed t))
+  	)
+    (org-roam-dailies-capture-templates
+     '(("d" "default" entry "* %<%I:%M %p>: %?"
+       :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n f" . org-roam-node-find)
+           ("C-c n i" . org-roam-node-insert)
+  	 :map org-mode-map
+  	 ("C-M-i"    . completion-at-point))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (org-roam-db-autosync-mode)
+    (org-roam-setup))
+#+end_src
+** Org Roam UI
+#+begin_src emacs-lisp
+ (use-package org-roam-ui
+   :ensure t
+   :after org-roam)
+#+end_src
+** Inbox
+#+begin_src emacs-lisp
+(defun kylekrein/org-roam-capture-inbox ()
+  (interactive)
+  (org-roam-capture- :node (org-roam-node-create)
+                     :templates '(("i" "inbox" plain "* %?"
+                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n#+category: Inbox\n#+filetags: Project")))))
+(global-set-key (kbd "C-c n b") #'kylekrein/org-roam-capture-inbox)
+#+end_src
+** Capture a task directly into Project
+Doesn't work for now
+#+begin_src emacs-lisp
+(defun kylekrein/org-roam-project-finalize-hook ()
+  "Adds the captured project file to `org-agenda-files' if the
+capture was not aborted."
+  ;; Remove the hook since it was added temporarily
+  (remove-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
+
+  ;; Add project file to the agenda list if the capture was confirmed
+  (unless org-note-abort
+    (with-current-buffer (org-capture-get :buffer)
+      (add-to-list 'org-agenda-files (buffer-file-name)))))
+
+(defun kylekrein/org-roam-capture-task ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
+
+  ;; Capture the new task, creating the project file if necessary
+  (org-roam-capture- :node (org-roam-node-read
+                            nil
+                            (kylekrein/org-roam-filter-by-tag "Project"))
+                     :templates '(("p" "project" plain "* TODO %?"
+                                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
+                                                          ("Tasks"))))))
+
+(global-set-key (kbd "C-c n t") #'kylekrein/org-roam-capture-task)
+#+end_src
+* Org Agenda
+** TODOs only from Projects
+Collect and show todos only defined in files with tag ~Project~
+#+begin_src emacs-lisp
+  (require 'org-roam-node)
+  (defun kylekrein/org-roam-filter-by-tag (tag-name)
+    (lambda (node)
+      (member tag-name (org-roam-node-tags node))))
+
+  (defun kylekrein/org-roam-list-notes-by-tag (tag-name)
+    (mapcar #'org-roam-node-file
+            (seq-filter
+             (kylekrein/org-roam-filter-by-tag tag-name)
+             (org-roam-node-list))))
+
+  (defun kylekrein/org-roam-refresh-agenda-list ()
+    (interactive)
+    (setq org-agenda-files (kylekrein/org-roam-list-notes-by-tag "Project")))
+
+
+  (setq org-agenda-files nil
+        org-roam-node-display-template "${title} ${tags}"
+        org-agenda-start-on-weekday 1 ;; Week starts on Monday instead of Sunday
+        )
+  ;; Build the agenda list the first time for the session
+  (kylekrein/org-roam-refresh-agenda-list)
+#+end_src
+** Todos in Today
+Automatically copies all *DONE* TODOs to Today's daily
+#+begin_src emacs-lisp
+(defun kylekrein/org-roam-copy-todo-to-today ()
+  (interactive)
+  (let ((org-refile-keep t) ;; Set this to nil to delete the original!
+        (org-roam-dailies-capture-templates
+         '(("t" "tasks" entry "%?"
+            :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Daily\n" ("Completed Tasks:")))))
+        (org-after-refile-insert-hook #'save-buffer)
+        today-file
+        pos)
+    (save-window-excursion
+      (org-roam-dailies--capture (current-time) t)
+      (setq today-file (buffer-file-name))
+      (setq pos (point)))
+
+    ;; Only refile if the target file is different than the current file
+    (unless (equal (file-truename today-file)
+                   (file-truename (buffer-file-name)))
+      (org-refile nil nil (list "Tasks" today-file nil pos)))))
+
+(add-to-list 'org-after-todo-state-change-hook
+             (lambda ()
+               (when (equal org-state "DONE")
+                 (kylekrein/org-roam-copy-todo-to-today))))
+#+end_src
+** Auto refresh agenda view
+[[https://emacs.stackexchange.com/a/68767][Link]]
+#+begin_src emacs-lisp
+(defvar refresh-agenda-time-seconds 300)
+
+(defvar refresh-agenda-timer nil
+  "Timer for `refresh-agenda-timer-function' to reschedule itself, or nil.")
+
+(defun refresh-agenda-timer-function ()
+  ;; If the user types a command while refresh-agenda-timer
+  ;; is active, the next time this function is called from
+  ;; its main idle timer, deactivate refresh-agenda-timer.
+  (when refresh-agenda-timer
+    (cancel-timer refresh-agenda-timer))
+
+  (org-agenda nil "a")
+
+  (setq refresh-agenda-timer
+    (run-with-idle-timer
+      ;; Compute an idle time break-length
+      ;; more than the current value.
+      (time-add (current-idle-time) refresh-agenda-time-seconds)
+      nil
+      'refresh-agenda-timer-function)))
+
+(run-with-idle-timer refresh-agenda-time-seconds t 'refresh-agenda-timer-function)
+#+end_src
+** Notifications
 *** Org wild notifier
 Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
 But it doesn't work on Android in GUI because of async (interprocess communications)
@@ -746,137 +943,6 @@ This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][her
     :config
     (setq appt-display-mode-line nil)
     (org-upcoming-modeline-mode))
-#+end_src
-* ORG ROAM
-** Org Roam itself
-#+begin_src emacs-lisp
-  (use-package org-roam
-    :ensure t
-    :init
-    (setq org-roam-v2-ack t)
-    :custom
-    (org-roam-directory "~/Documents/org")
-    (org-roam-completion-everywhere t)
-    (org-roam-capture-templates
-      '(("d" "default" plain
-         "%?"
-         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n")
-         :unnarrowed t)
-         ("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n* Dates\n\n"
-         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n#+filetags: Project")
-         :unnarrowed t))
-  	)
-    (org-roam-dailies-capture-templates
-     '(("d" "default" entry "* %<%I:%M %p>: %?"
-       :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-    :bind (("C-c n l" . org-roam-buffer-toggle)
-           ("C-c n f" . org-roam-node-find)
-           ("C-c n i" . org-roam-node-insert)
-  	 :map org-mode-map
-  	 ("C-M-i"    . completion-at-point))
-    :bind-keymap
-    ("C-c n d" . org-roam-dailies-map)
-    :config
-    (require 'org-roam-dailies) ;; Ensure the keymap is available
-    (org-roam-db-autosync-mode)
-    (org-roam-setup))
-#+end_src
-** Org Roam UI
-#+begin_src emacs-lisp
- (use-package org-roam-ui
-   :ensure t
-   :after org-roam)
-#+end_src
-** Org Agenda
-#+begin_src emacs-lisp
-  (require 'org-roam-node)
-  (defun kylekrein/org-roam-filter-by-tag (tag-name)
-    (lambda (node)
-      (member tag-name (org-roam-node-tags node))))
-
-  (defun kylekrein/org-roam-list-notes-by-tag (tag-name)
-    (mapcar #'org-roam-node-file
-            (seq-filter
-             (kylekrein/org-roam-filter-by-tag tag-name)
-             (org-roam-node-list))))
-
-  (defun kylekrein/org-roam-refresh-agenda-list ()
-    (interactive)
-    (setq org-agenda-files (kylekrein/org-roam-list-notes-by-tag "Project")))
-
-
-  (setq org-agenda-files nil
-        org-roam-node-display-template "${title} ${tags}"
-        org-agenda-start-on-weekday 1 ;; Week starts on Monday instead of Sunday
-        )
-  ;; Build the agenda list the first time for the session
-  (kylekrein/org-roam-refresh-agenda-list)
-#+end_src
-** Inbox
-#+begin_src emacs-lisp
-(defun kylekrein/org-roam-capture-inbox ()
-  (interactive)
-  (org-roam-capture- :node (org-roam-node-create)
-                     :templates '(("i" "inbox" plain "* %?"
-                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n#+category: Inbox\n#+filetags: Project")))))
-(global-set-key (kbd "C-c n b") #'kylekrein/org-roam-capture-inbox)
-#+end_src
-** Capture a task directly into Project
-Doesn't work for now
-#+begin_src emacs-lisp
-(defun kylekrein/org-roam-project-finalize-hook ()
-  "Adds the captured project file to `org-agenda-files' if the
-capture was not aborted."
-  ;; Remove the hook since it was added temporarily
-  (remove-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
-
-  ;; Add project file to the agenda list if the capture was confirmed
-  (unless org-note-abort
-    (with-current-buffer (org-capture-get :buffer)
-      (add-to-list 'org-agenda-files (buffer-file-name)))))
-
-(defun kylekrein/org-roam-capture-task ()
-  (interactive)
-  ;; Add the project file to the agenda after capture is finished
-  (add-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
-
-  ;; Capture the new task, creating the project file if necessary
-  (org-roam-capture- :node (org-roam-node-read
-                            nil
-                            (kylekrein/org-roam-filter-by-tag "Project"))
-                     :templates '(("p" "project" plain "* TODO %?"
-                                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
-                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
-                                                          ("Tasks"))))))
-
-(global-set-key (kbd "C-c n t") #'kylekrein/org-roam-capture-task)
-#+end_src
-** Todos in Today
-Automatically copies all *DONE* TODOs to Today's daily
-#+begin_src emacs-lisp
-(defun kylekrein/org-roam-copy-todo-to-today ()
-  (interactive)
-  (let ((org-refile-keep t) ;; Set this to nil to delete the original!
-        (org-roam-dailies-capture-templates
-         '(("t" "tasks" entry "%?"
-            :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n#+filetags: Daily\n" ("Completed Tasks:")))))
-        (org-after-refile-insert-hook #'save-buffer)
-        today-file
-        pos)
-    (save-window-excursion
-      (org-roam-dailies--capture (current-time) t)
-      (setq today-file (buffer-file-name))
-      (setq pos (point)))
-
-    ;; Only refile if the target file is different than the current file
-    (unless (equal (file-truename today-file)
-                   (file-truename (buffer-file-name)))
-      (org-refile nil nil (list "Tasks" today-file nil pos)))))
-
-(add-to-list 'org-after-todo-state-change-hook
-             (lambda ()
-               (when (equal org-state "DONE")
-                 (kylekrein/org-roam-copy-todo-to-today))))
 #+end_src
 * RAINBOW MODE
 Display the actual color as a background for any hex color value (ex. #ffffff).  The code block below enables rainbow-mode in all programming modes (prog-mode) as well as org-mode, which is why rainbow works in this document.  
