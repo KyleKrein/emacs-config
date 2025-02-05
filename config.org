@@ -560,6 +560,7 @@ The following settings are simple modes that are enabled (or disabled) so that E
 (global-display-line-numbers-mode 1) ;; Display line numbers
 (global-visual-line-mode t)  ;; Enable truncated lines
 (winner-mode t) ;; Undo (C-c <left>) and Redo (C-c <right>) for windows
+(setq sentence-end-double-space t) ;; Single space doesn't end a sentence
 #+end_src
 ** Battery info
 #+begin_src emacs-lisp
@@ -847,7 +848,7 @@ Automatically copies all *DONE* TODOs to Today's daily
 #+end_src
 ** Auto refresh agenda view
 [[https://emacs.stackexchange.com/a/68767][Link]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lis
 (defvar refresh-agenda-time-seconds 300)
 
 (defvar refresh-agenda-timer nil
