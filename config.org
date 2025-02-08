@@ -61,6 +61,8 @@
 - [[#sudo-edit][SUDO EDIT]]
 - [[#language-support][Language support]]
   - [[#nix][Nix]]
+  - [[#cmake][CMake]]
+  - [[#global-treesitter][Global treesitter]]
 - [[#nerd-icons][Nerd Icons]]
   - [[#nerd-icons-completion][Nerd Icons Completion]]
 - [[#buffer-move][Buffer Move]]
@@ -1051,18 +1053,22 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
 Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM, AWK, C, C++, Fortran, Icon, IDL (CORBA), IDLWAVE, Java, Javascript, M4, Makefiles, Metafont, Modula2, Object Pascal, Objective-C, Octave, Pascal, Perl, Pike, PostScript, Prolog, Python, Ruby, Simula, SQL, Tcl, Verilog, and VHDL.  Other languages will require you to install additional modes.
 ** Nix
 #+begin_src emacs-lisp
-(use-package nix-mode
-  :ensure t
-  :mode ("\\.nix\\'" "\\.nix.in\\'"))
-(use-package nix-drv-mode
-  :ensure nix-mode
-  :mode "\\.drv\\'")
-(use-package nix-shell
-  :ensure nix-mode
-  :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
-(use-package nix-repl
-  :ensure nix-mode
-  :commands (nix-repl))
+  (use-package nix-ts-mode
+   :ensure t
+   :mode "\\.nix\\'")
+#+end_src
+** CMake
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
+#+end_src
+** Global treesitter
+#+begin_src emacs-lisp
+  (use-package treesit-auto
+    :ensure t
+    :demand t
+    :config
+    (global-treesit-auto-mode))
 #+end_src
 * Nerd Icons
 #+begin_src emacs-lisp

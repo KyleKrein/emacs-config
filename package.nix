@@ -53,7 +53,7 @@
     # This can also include extra executables to be run by Emacs (linters,
     # language servers, formatters, etc)
     extraEmacsPackages = epkgs:
-      with pkgs; [
+      (with pkgs; [
         #nerd-fonts.jetbrains-mono
         #jetbrains-mono
         unzip
@@ -61,7 +61,11 @@
         imagemagick
         fontconfig
         freetype
-      ];
+      ] ++ (with epkgs;[
+        tree-sitter
+        tree-sitter-langs
+        treesit-grammars.with-all-grammars
+      ]));
 
     # Optionally override derivations.
     override = final: prev: {
