@@ -73,6 +73,7 @@
   fontConfig = pkgs.makeFontsConf {
     fontDirectories = with pkgs; [
       nerd-fonts.jetbrains-mono
+      jetbrains-mono
       ubuntu-classic
       nerd-fonts.symbols-only
       hack-font
