@@ -72,9 +72,10 @@
   };
   fontConfig = pkgs.makeFontsConf {
     fontDirectories = with pkgs; [
-      jetbrains-mono
+      nerd-fonts.jetbrains-mono
       ubuntu-classic
       nerd-fonts.symbols-only
+      hack-font
     ];
   };
   mkEmacs = emacs:
