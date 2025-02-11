@@ -42,6 +42,8 @@
   - [[#org-level-headers][Org Level Headers]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
   - [[#insert-pictures][Insert pictures]]
+  - [[#update-org-tables][Update org tables]]
+  - [[#org-transclusion][Org transclusion]]
 - [[#org-roam][ORG ROAM]]
   - [[#org-roam-itself][Org Roam itself]]
   - [[#org-roam-ui][Org Roam UI]]
@@ -746,6 +748,37 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 
 (setq org-download-method 'attach) ;;attach or directory
 ;;    (setq-default org-download-image-dir "~/Pictures/foo") ;;for directory
+#+end_src
+** Update org tables
+#+begin_src emacs-lisp
+(defun org-update-table-by-name (name)
+      "Update the named table."
+      (org-table-map-tables
+      (lambda ()
+      (let ((table_name (org-element-property :name (org-element-at-point))))
+      (if (and table_name (string-match-p name table_name))
+             (org-table-recalculate))))))
+#+end_src
+#+begin_src emacs-lisp
+  (defun org-update-and-realign-tables ()
+    (interactive)
+    (org-map-dblocks 'org-update-dblock)
+    (redisplay)
+    (org-table-map-tables 'org-table-recalculate)
+    (org-table-map-tables 'org-table-align))
+
+(global-set-key (kbd "C-c n u") 'org-update-and-realign-tables)
+#+end_src
+** Org transclusion
+#+begin_src emacs-lisp
+(use-package org-transclusion :ensure t)
+(custom-set-faces
+ '(org-transclusion-fringe
+   ((t
+     (:background "green"))))
+ '(org-transclusion-source-fringe
+   ((t
+     (:background "blue")))))
 #+end_src
 * ORG ROAM
 ** Org Roam itself
