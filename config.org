@@ -67,6 +67,7 @@
   - [[#global-treesitter][Global treesitter]]
 - [[#nerd-icons][Nerd Icons]]
   - [[#nerd-icons-completion][Nerd Icons Completion]]
+- [[#persist-state][Persist state]]
 - [[#buffer-move][Buffer Move]]
 - [[#completions][Completions]]
   - [[#vertico][Vertico]]
@@ -1124,6 +1125,15 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
     (nerd-icons-completion-mode)
     (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 #+end_src
+* Persist state
+#+begin_src emacs-lisp
+  (use-package persist-state
+    :ensure t
+    :after server
+    :if server-process
+    :config
+    (persist-state-mode))
+#+end_src
 * Buffer Move
 Creating some functions to allow us to easily move windows (splits) around.  The following block of code was taken from buffer-move.el found on the EmacsWiki:
   https://www.emacswiki.org/emacs/buffer-move.el
@@ -1378,6 +1388,7 @@ All fonts on Android must be in *~/fonts* directory
     (setq use-file-dialog t)   ;; file dialog
     (setq use-dialog-box t)    ;; dialog box
     (setq pop-up-windows t)    ;; popup windows
+    (server-start)
   )
 #+end_src
 * Emacs on WSL
