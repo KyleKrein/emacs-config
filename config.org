@@ -50,7 +50,11 @@
   - [[#inbox][Inbox]]
   - [[#capture-a-task-directly-into-project][Capture a task directly into Project]]
 - [[#org-agenda][Org Agenda]]
+  - [[#refresh][Refresh]]
+  - [[#auto-update-agenda][Auto update agenda]]
   - [[#todos-only-from-projects][TODOs only from Projects]]
+  - [[#org-recur][Org-recur]]
+  - [[#small-settings][Small settings]]
   - [[#todos-in-today][Todos in Today]]
   - [[#auto-refresh-agenda-view][Auto refresh agenda view]]
   - [[#org-timeblock][org-timeblock]]
@@ -95,6 +99,9 @@
 #+begin_src emacs-lisp
 (global-set-key [remap list-buffers] 'ibuffer)
 (global-set-key (kbd "M-o") 'other-window)
+(global-set-key (kbd "C-c o t") 'vterm-toggle)
+(global-set-key (kbd "C-c o a") 'org-agenda)
+(global-set-key (kbd "C-c o d") 'dashboard-open)
 ;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
 #+end_src
 ** Focus new windows
@@ -405,73 +412,74 @@ By default, Emacs creates automatic backups of files in their original directori
 * Dashboard
 Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
 #+begin_src emacs-lisp
-      (use-package dashboard
-        :ensure t 
-        :after (:all nerd-icons org org-agenda org-roam)
-        :init
-        (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
-        (setq dashboard-week-agenda t)
-        ;;(setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
-        (setq dashboard-display-icons-p t)     ; display icons on both GUI and terminal
-        (setq dashboard-icon-type 'nerd-icons) ; use `nerd-icons' package
-        (setq dashboard-set-heading-icons t)
-        (setq dashboard-projects-backend 'project-el)
-        (setq dashboard-set-file-icons t)
-        (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
-        (setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-        ;;(setq dashboard-startup-banner "/home/dt/.config/emacs/images/emacs-dash.png")  ;; use custom image as banner
-        (setq dashboard-center-content nil) ;; set to 't' for centered content
-        (setq dashboard-items '((recents . 5)
-                                (agenda . 5 )
-                                (bookmarks . 3)
-                                (projects . 3)
-                                (registers . 3)))
-        (setq dashboard-startupify-list '(dashboard-insert-banner
-                                      dashboard-insert-newline
-                                      dashboard-insert-banner-title
-                                      dashboard-insert-newline
-                                      dashboard-insert-navigator
-                                      dashboard-insert-newline
-                                      dashboard-insert-init-info
-                                      dashboard-insert-items
-                                      dashboard-insert-newline
-                                      dashboard-insert-footer))
-        (setq dashboard-navigator-buttons
-          `(;; Line 1
-            ((,(nerd-icons-mdicon "nf-md-inbox" :height 1.1 :v-adjust 0.0)
-              "To Inbox"
-              "Capture to inbox"
-              (lambda (&rest _) (kylekrein/org-roam-capture-inbox)))
+  (use-package dashboard
+    :ensure t 
+    :after (:all nerd-icons org org-agenda org-roam)
+    :init
+    (setq initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
+    (setq dashboard-week-agenda t)
+    ;;(setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-display-icons-p t)     ; display icons on both GUI and terminal
+    (setq dashboard-icon-type 'nerd-icons) ; use `nerd-icons' package
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-projects-backend 'project-el)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+    (setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
+    ;;(setq dashboard-startup-banner "/home/dt/.config/emacs/images/emacs-dash.png")  ;; use custom image as banner
+    (setq dashboard-center-content nil) ;; set to 't' for centered content
+    (setq dashboard-items '((recents . 5)
+                            (agenda . 5 )
+                            (bookmarks . 3)
+                            (projects . 3)
+                            (registers . 3)))
+    (setq dashboard-startupify-list '(dashboard-insert-banner
+                                  dashboard-insert-newline
+                                  dashboard-insert-banner-title
+                                  dashboard-insert-newline
+                                  dashboard-insert-navigator
+                                  dashboard-insert-newline
+                                  dashboard-insert-init-info
+                                  dashboard-insert-items
+                                  dashboard-insert-newline
+                                  dashboard-insert-footer))
+    (setq dashboard-navigator-buttons
+      `(;; Line 1
+        ((,(nerd-icons-mdicon "nf-md-inbox" :height 1.1 :v-adjust 0.0)
+          "To Inbox"
+          "Capture to inbox"
+          (lambda (&rest _) (kylekrein/org-roam-capture-inbox)))
 
-             (,(nerd-icons-mdicon "nf-md-calendar" :height 1.1 :v-adjust 0.0)
-              "Agenda"
-              "View agenda"
-              (lambda (&rest _) (org-agenda)))
+         (,(nerd-icons-mdicon "nf-md-calendar" :height 1.1 :v-adjust 0.0)
+          "Agenda"
+          "View agenda"
+          (lambda (&rest _) (org-agenda)))
 
-             (,(nerd-icons-mdicon "nf-md-note" :height 1.1 :v-adjust 0.0)
-              "Note"
-              "Find a note"
-              (lambda (&rest _) (org-roam-node-find))))
+         (,(nerd-icons-mdicon "nf-md-note" :height 1.1 :v-adjust 0.0)
+          "Note"
+          "Find a note"
+          (lambda (&rest _) (org-roam-node-find))))
 
-            ;; Line 2
-            ((,(nerd-icons-mdicon "nf-md-sync" :height 1.1 :v-adjust 0.0)
-              "Sync"
-              "Sync org-roam and agenda"
-              (lambda (&rest _)
-                (org-roam-db-sync)
-                (org-agenda-redo)
-                (message "Org-Roam and Agenda synced!")))
+        ;; Line 2
+        ((,(nerd-icons-mdicon "nf-md-sync" :height 1.1 :v-adjust 0.0)
+          "Sync"
+          "Sync org-roam and agenda"
+          (lambda (&rest _)
+            (org-roam-db-sync)
+  	  (kylekrein/org-roam-refresh-agenda-list)
+            (org-agenda-redo)
+            (message "Org-Roam and Agenda synced!")))
 
-             (,(nerd-icons-mdicon "nf-md-calendar_today" :height 1.1 :v-adjust 0.0)
-              "Today"
-              "View today's tasks"
-              (lambda (&rest _) (org-agenda nil "a"))))))
+         (,(nerd-icons-mdicon "nf-md-calendar_today" :height 1.1 :v-adjust 0.0)
+          "Today"
+          "View today's tasks"
+          (lambda (&rest _) (org-agenda nil "a"))))))
 
-        :custom
-        (dashboard-modify-heading-icons '((recents   . "nf-oct-file_text")
-                                    (bookmarks . "nf-oct-book")))
-        :config
-        (dashboard-setup-startup-hook))
+    :custom
+    (dashboard-modify-heading-icons '((recents   . "nf-oct-file_text")
+                                (bookmarks . "nf-oct-book")))
+    :config
+    (dashboard-setup-startup-hook))
 #+end_src
 * Diminish
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
@@ -861,6 +869,22 @@ capture was not aborted."
 (global-set-key (kbd "C-c n t") #'kylekrein/org-roam-capture-task)
 #+end_src
 * Org Agenda
+** Refresh
+#+begin_src emacs-lisp
+(defun org-agenda-refresh ()
+  "Refresh all `org-agenda' buffers."
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (derived-mode-p 'org-agenda-mode)
+        (org-agenda-maybe-redo)))))
+#+end_src
+** Auto update agenda
+*** On Schedule
+#+begin_src emacs-lisp
+(defadvice org-schedule (after refresh-agenda activate)
+  "Refresh org-agenda."
+  (org-agenda-refresh))
+#+end_src
 ** TODOs only from Projects
 Collect and show todos only defined in files with tag ~Project~
 #+begin_src emacs-lisp
@@ -886,6 +910,44 @@ Collect and show todos only defined in files with tag ~Project~
         )
   ;; Build the agenda list the first time for the session
   (kylekrein/org-roam-refresh-agenda-list)
+#+end_src
+** Org-recur
+[[https://github.com/mrcnski/org-recur][Org-recur]] adds simple syntax, that enhances repeating tasks funktionality
+*Examples:*
+| Usage       | Description                     |
+|-------------+---------------------------------|
+| ~\vert+2\vert~      | Recur every other day           |
+| ~\vert+w\vert~      | Recur every week                |
+| ~\vert1\vert~       | Recur the first of every month  |
+| ~\vert{}Thu\vert~     | Recur every Thursday            |
+| ~\vert{}Sun,Sat\vert~ | Recur every Sunday and Saturday |
+| ~\vert{}Wkdy\vert~    | Recur every weekday             |
+#+begin_src emacs-lisp
+(use-package org-recur
+  :hook ((org-mode . org-recur-mode)
+         (org-agenda-mode . org-recur-agenda-mode))
+  :ensure t
+  :config
+  (define-key org-recur-mode-map (kbd "C-c d") 'org-recur-finish)
+
+  ;; Rebind the 'd' key in org-agenda (default: `org-agenda-day-view').
+  (define-key org-recur-agenda-mode-map (kbd "d") 'org-recur-finish)
+  (define-key org-recur-agenda-mode-map (kbd "C-c d") 'org-recur-finish)
+
+  (setq org-recur-finish-done t
+        org-recur-finish-archive t))
+#+end_src
+** Small settings
+#+begin_src emacs-lisp
+  ;; Log time a task was set to DONE.
+  (setq org-log-done (quote time))
+
+  ;; Don't log the time a task was rescheduled or redeadlined.
+  (setq org-log-redeadline nil)
+  (setq org-log-reschedule nil)
+
+  ;; Prefer rescheduling to future dates and times
+  (setq org-read-date-prefer-future 'time)
 #+end_src
 ** Todos in Today
 Automatically copies all *DONE* TODOs to Today's daily
