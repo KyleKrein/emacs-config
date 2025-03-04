@@ -28,8 +28,8 @@
     # Package is optional, defaults to pkgs.emacs
     package =
       if x11
-      then pkgs.emacs-unstable
-      else pkgs.emacs-unstable-pgtk;
+      then pkgs.emacs30
+      else pkgs.emacs30-pgtk;
 
     # By default emacsWithPackagesFromUsePackage will only pull in
     # packages with `:ensure`, `:ensure t` or `:ensure <package name>`.
