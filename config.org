@@ -104,6 +104,7 @@
 (global-set-key (kbd "C-c o a") 'org-agenda)
 (global-set-key (kbd "C-c o d") 'dashboard-open)
 (global-set-key (kbd "C-c o p") 'pass)
+(global-set-key (kbd "C-c o m") 'magit)
 ;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
 #+end_src
 ** Focus new windows
