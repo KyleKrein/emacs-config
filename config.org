@@ -65,6 +65,7 @@
   - [[#vterm][Vterm]]
   - [[#vterm-toggle][Vterm-Toggle]]
 - [[#sudo-edit][SUDO EDIT]]
+- [[#password-store][Password store]]
 - [[#language-support][Language support]]
   - [[#nix][Nix]]
   - [[#cmake][CMake]]
@@ -102,6 +103,7 @@
 (global-set-key (kbd "C-c o t") 'vterm-toggle)
 (global-set-key (kbd "C-c o a") 'org-agenda)
 (global-set-key (kbd "C-c o d") 'dashboard-open)
+(global-set-key (kbd "C-c o p") 'pass)
 ;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
 #+end_src
 ** Focus new windows
@@ -922,7 +924,7 @@ Collect and show todos only defined in files with tag ~Project~
 | ~\vert{}Thu\vert~     | Recur every Thursday            |
 | ~\vert{}Sun,Sat\vert~ | Recur every Sunday and Saturday |
 | ~\vert{}Wkdy\vert~    | Recur every weekday             |
-#+begin_src emacs-lisp
+#+begin_src emacs-lispp
 (use-package org-recur
   :hook ((org-mode . org-recur-mode)
          (org-agenda-mode . org-recur-agenda-mode))
@@ -1143,6 +1145,12 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
 
 #+begin_src emacs-lisp
   (use-package sudo-edit
+    :ensure t)
+#+end_src
+* Password store
+[[https://github.com/NicolasPetton/pass][Pass]] is a package that interacts with [[https://www.passwordstore.org/][Standard UNIX password manager]]
+#+begin_src emacs-lisp
+  (use-package pass
     :ensure t)
 #+end_src
 * Language support
