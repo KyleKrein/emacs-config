@@ -12,6 +12,7 @@
   - [[#emacs-function-launcher][Emacs function launcher]]
   - [[#copy-to-clipboard][Copy to clipboard]]
   - [[#detect-wsl][Detect WSL]]
+  - [[#is-android][Is Android]]
   - [[#notifications][Notifications]]
 - [[#app-launcher][App Launcher]]
   - [[#standalone-run][Standalone run]]
@@ -188,6 +189,11 @@ Copies to both kill ring and system clipboard
   (and (eq system-type 'gnu/linux)
        (file-exists-p "/proc/sys/fs/binfmt_misc/WSLInterop")))
 #+end_src
+** Is Android
+#+begin_src emacs-lisp
+  (defun kylekrein/is-android ()
+    (eq system-type 'android))
+#+end_src
 ** Notifications
 *** Alert package
 #+begin_src emacs-lisp
@@ -201,7 +207,7 @@ Found the code [[https://www.reddit.com/r/emacs/comments/18xvtns/emacs_notificat
 (require 'alert)
 
 (defun alert-android-notifications-notify (info)
-  (unless (eq system-type 'android)
+  (unless (kylekrein/is-android)
     (error "Android notifications are only supported on Android systems"))
   
   "Send INFO using android-notifications-notify."
@@ -236,7 +242,7 @@ Using [[https://github.com/gkowzan/alert-toast][Alert toast]]
 #+begin_src emacs-lisp
 (setq alert-default-style
   	(cond
-  	 ((eq system-type 'android) 'android-notifications)
+  	 ((kylekrein/is-android) 'android-notifications)
   	 ((kylekrein/detect-wsl) 'toast)
   	 (t 'libnotify)))
 #+end_src
@@ -650,7 +656,7 @@ This doesn-t work for me for now, very laggy and inconsistent
 * PDF Tools
 [[https://github.com/vedang/pdf-tools][pdf-tools]] is a replacement of DocView for viewing PDF files inside Emacs.  It uses the poppler library, which also means that ‘pdf-tools’ can by used to modify PDFs.  I use to disable ‘display-line-numbers-mode’ in ‘pdf-view-mode’ because line numbers crash it.
 #+begin_src emacs-lisp
- (unless (string-equal system-type "android") ;; fails to compile
+ (unless (kylekrein/is-android) ;; fails to compile
   (use-package pdf-tools
     :ensure t
     :defer t
@@ -1033,7 +1039,7 @@ Automatically copies all *DONE* TODOs to Today's daily
 Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
 But it doesn't work on Android in GUI because of async (interprocess communications)
 #+begin_src emacs-lisp
- (unless (string-equal system-type "android")
+ (unless (kylekrein/is-android)
      (use-package org-wild-notifier
        :ensure t
        :after 'org
@@ -1069,7 +1075,7 @@ Actually works, but is too basic
 Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
 This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][here]].
 #+begin_src emacs-lisp
- (when (string-equal system-type "android")
+ (when (string-equal kylekrein/is-android)
   (use-package emacs
     :config
     ;; start warning 60 minutes before the appointment
@@ -1127,7 +1133,7 @@ Eshell is an Emacs 'shell' that is written in Elisp.
 Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets the shell to be used in M-x shell, M-x term, M-x ansi-term and M-x vterm.  By default, the shell is set to 'fish' but could change it to 'bash' or 'zsh' if you prefer.
 
 #+begin_src emacs-lisp
- (unless (string-equal system-type "android") ;;Fails to compile
+ (unless (kylekrein/is-android) ;;Fails to compile
   (use-package vterm
     :ensure t
   ;;:config
@@ -1138,7 +1144,7 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
 [[https://github.com/jixiuf/vterm-toggle][vterm-toggle]] toggles between the vterm buffer and whatever buffer you are editing.
 
 #+begin_src emacs-lisp
- (unless (string-equal system-type "android")
+ (unless (kylekrein/is-android)
   (use-package vterm-toggle
     :ensure t
     :after vterm
@@ -1468,7 +1474,7 @@ With Emacs version 29, true transparency has been added.
 All fonts on Android must be in *~/fonts* directory
 ** Settings
 #+begin_src emacs-lisp
-  (when (string-equal system-type "android")
+  (when (kylekrein/is-android)
     ;;Write all android settings here
     (setq touch-screen-keyboard-function t)
     (setq touch-screen-display-keyboard t)
