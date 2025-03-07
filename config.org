@@ -192,7 +192,7 @@ Copies to both kill ring and system clipboard
 ** Is Android
 #+begin_src emacs-lisp
   (defun kylekrein/is-android ()
-    (eq system-type 'android))
+    (string-equal system-type "android"))
 #+end_src
 ** Notifications
 *** Alert package
