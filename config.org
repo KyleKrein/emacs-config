@@ -33,6 +33,7 @@
 - [[#pixel-scrolling][Pixel-scrolling]]
   - [[#native][Native]]
 - [[#pdf-tools][PDF Tools]]
+- [[#drawing-tools][Drawing tools]]
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#calendar][Calendar]]
 - [[#org-mode][ORG MODE]]
@@ -668,6 +669,21 @@ This doesn-t work for me for now, very laggy and inconsistent
                                                            (doom-modeline-mode -1))))
 
 #+end_src
+* Drawing tools
+[[https://github.com/misohena/el-easydraw][el-easydraw]]
+#+begin_src emacs-lispp
+  (use-package el-easydraw :ensure t)
+  (with-eval-after-load 'org
+    (require 'edraw-org)
+    (edraw-org-setup-default))
+  ;; When using the org-export-in-background option (when using the
+  ;; asynchronous export function), the following settings are
+  ;; required. This is because Emacs started in a separate process does
+  ;; not load org.el but only ox.el.
+  (with-eval-after-load "ox"
+    (require 'edraw-org)
+    (edraw-org-setup-exporter))
+#+end_src
 * RAINBOW DELIMITERS
 Adding rainbow coloring to parentheses.
 #+begin_src emacs-lisp
@@ -1016,7 +1032,7 @@ Automatically copies all *DONE* TODOs to Today's daily
 *** Org wild notifier
 Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
 But it doesn't work on Android in GUI because of async (interprocess communications)
-#+begin_src emacs-lispp
+#+begin_src emacs-lisp
      (use-package org-wild-notifier
        :ensure t
        :after 'org
@@ -1051,7 +1067,7 @@ Actually works, but is too basic
 *** Appt
 Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
 This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][here]].
-#+begin_src emacs-lisp
+#+begin_src emacs-lispp
   (use-package emacs
     :config
     ;; start warning 60 minutes before the appointment
