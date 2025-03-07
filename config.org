@@ -1038,8 +1038,7 @@ Automatically copies all *DONE* TODOs to Today's daily
 *** Org wild notifier
 Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
 But it doesn't work on Android in GUI because of async (interprocess communications)
-#+begin_src emacs-lisp
- (unless (kylekrein/is-android)
+#+begin_src emacs-lispp
      (use-package org-wild-notifier
        :ensure t
        :after 'org
@@ -1054,7 +1053,6 @@ But it doesn't work on Android in GUI because of async (interprocess communicati
          org-wild-notifier-display-time-format-string "%H:%M"
          alert-fade-time 50
          )
-)
 #+end_src
 *** Org alert
 Actually works, but is too basic
@@ -1075,7 +1073,6 @@ Actually works, but is too basic
 Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
 This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][here]].
 #+begin_src emacs-lisp
- (when (kylekrein/is-android)
   (use-package emacs
     :config
     ;; start warning 60 minutes before the appointment
@@ -1098,7 +1095,6 @@ This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][her
 
     (appt-activate t))
 (setq alert-fade-time 50)
-)
 #+end_src
 **** Appt on modeline
 #+begin_src emacs-lisp
