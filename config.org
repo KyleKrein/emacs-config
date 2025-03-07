@@ -1038,7 +1038,7 @@ But it doesn't work on Android in GUI because of async (interprocess communicati
        :after 'org
      )
   (org-wild-notifier-mode)
-       (setq alert-default-style 'libnotify
+       (setq ;alert-default-style 'libnotify
          org-wild-notifier-alert-time '(0 5 10 60)
          org-wild-notifier-day-wide-alert-times "7:00"
          org-wild-notifier-keyword-whitelist nil
