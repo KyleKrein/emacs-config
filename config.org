@@ -192,7 +192,7 @@ Copies to both kill ring and system clipboard
 ** Is Android
 #+begin_src emacs-lisp
   (defun kylekrein/is-android ()
-    (string-equal system-type "android"))
+     (string-equal system-type "android"))
 #+end_src
 ** Notifications
 *** Alert package
@@ -1075,7 +1075,7 @@ Actually works, but is too basic
 Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
 This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][here]].
 #+begin_src emacs-lisp
- (when (string-equal kylekrein/is-android)
+ (when (kylekrein/is-android)
   (use-package emacs
     :config
     ;; start warning 60 minutes before the appointment
