@@ -1359,7 +1359,7 @@ one, an error is signaled."
   	("TAB" . corfu-next)
   	([tab] . corfu-next)
   	("SHIFT-TAB" . corfu-previous)
-  	[backtab] . corfu-previous
+  	([backtab] . corfu-previous)
   	("S-<return>" . corfu-insert))
 
     ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
