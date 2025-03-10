@@ -1200,22 +1200,24 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
 #+end_src
 ** Eglot
 #+begin_src emacs-lisp
-  (with-eval-after-load 'eglot
-      (add-to-list 'eglot-server-programs
-          '((c-ts-mode c++-ts-mode)
-               . ("clangd"
-  		"-j=8"
-                       "--log=error"
-                       "--malloc-trim"
-                       "--background-index"
-                       "--clang-tidy"
-                       "--cross-file-rename"
-                       "--completion-style=detailed"
-                       "--pch-storage=memory"
-                       "--header-insertion=never"
-                       "--header-insertion-decorators=0")))
-      (add-hook 'c-ts-mode-hook #'eglot-ensure)
-      (add-hook 'c++-ts-mode-hook #'eglot-ensure))
+      (with-eval-after-load 'eglot
+          (add-to-list 'eglot-server-programs
+              '((c-ts-mode c++-ts-mode)
+                   . ("clangd"
+      		"-j=8"
+                           "--log=error"
+                           "--malloc-trim"
+                           "--background-index"
+                           "--clang-tidy"
+                           "--cross-file-rename"
+                           "--completion-style=detailed"
+                           "--pch-storage=memory"
+                           "--header-insertion=never"
+                           "--header-insertion-decorators=0"))
+    	  ((csharp-ts-mode) . ("csharp-ls")))
+          (add-hook 'c-ts-mode-hook #'eglot-ensure)
+          (add-hook 'c++-ts-mode-hook #'eglot-ensure)
+  	(add-hook 'csharp-ts-mode-hook #'eglot-ensure))
 #+end_src
 * Nerd Icons
 #+begin_src emacs-lisp
