@@ -1344,6 +1344,7 @@ one, an error is signaled."
     (corfu-quit-at-boundary 'separator)
     (corfu-echo-documentation 0.25)
     (corfu-preselect-first nil)
+    (corfu-popupinfo-delay '(1.0 . 0.3)) ;;default '(2.0 . 1.0)
     ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
     ;; (corfu-preview-current nil)    ;; Disable current candidate preview
     ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
@@ -1366,7 +1367,9 @@ one, an error is signaled."
     ;; be used globally (M-/).  See also the customization variable
     ;; `global-corfu-modes' to exclude certain modes.
     :init
-    (global-corfu-mode))
+    (global-corfu-mode)
+    (corfu-history-mode)
+    (corfu-popupinfo-mode))
 
   ;; A few more useful configurations...
   (use-package emacs
