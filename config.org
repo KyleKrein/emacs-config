@@ -1201,6 +1201,30 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
     (global-treesit-auto-mode))
 #+end_src
 ** Eglot
+*** Base
+#+begin_src emacs-lisp
+(use-package eldoc
+    :init
+    (global-eldoc-mode))
+
+  (use-package eglot
+    :hook (prog-mode . eglot-ensure)
+    ;;:init
+    ;;(setq eglot-stay-out-of '(flymake))
+    :bind (:map
+           eglot-mode-map
+           ("C-c c a" . eglot-code-actions)
+           ;;("C-c c o" . eglot-code-actions-organize-imports)
+           ("C-c c r" . eglot-rename)
+           ("C-c c f" . eglot-format)))
+
+  (use-package flymake
+    :hook (prog-mode . flymake-mode)
+    :bind (:map flymake-mode-map
+                ("C-c ! n" . flymake-goto-next-error)
+                ("C-c ! p" . flymake-goto-prev-error)
+                ("C-c ! l" . flymake-show-buffer-diagnostics)))
+#+end_src
 *** C++ / C
 #+begin_src emacs-lisp
   (with-eval-after-load 'eglot
