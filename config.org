@@ -1252,6 +1252,45 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
                . ("csharp-ls")))
       (add-hook 'csharp-ts-mode-hook #'eglot-ensure))
 #+end_src
+*** Lobster
+#+begin_src emacs-lisp
+(require 'font-lock)
+
+(defgroup lobster-mode nil
+  "Major mode for editing Lobster language code."
+  :group 'languages)
+
+(defvar lobster-keywords
+  '("import" "from" "def" "fn" "return" "program" "private" "resource"
+    "if" "guard" "for" "while" "else" "enum" "enum_flags"
+    "int" "float" "string" "any" "void" "is" "typeof" "var" "let"
+    "pakfile" "switch" "case" "default" "namespace" "constructor"
+    "operator" "super" "abstract" "attribute" "member" "member_frame"
+    "static" "static_frame" "not" "and" "or" "struct" "class")
+  "Lobster keywords.")
+
+(defvar lobster-keywords-regexp (regexp-opt lobster-keywords 'words))
+
+(defvar lobster-font-lock-keywords
+  `((,"//.*$" . font-lock-comment-face) ;; Single-line comments
+    (,"/\*\(.\|
+\)*?\*/" . font-lock-comment-face) ;; Multi-line comments
+    (,"\<\(0x[0-9A-Fa-f]+\|[0-9]+\(\.[0-9]*\)?\([eE][-+]?[0-9]+\)?f?\)\>" . font-lock-constant-face) ;; Numbers
+    (,"\"\(\\.\|[^\"]\)*\"" . font-lock-string-face) ;; Strings
+    (,"'\\?.'" . font-lock-string-face) ;; Character literals
+    (,lobster-keywords-regexp . font-lock-keyword-face) ;; Keywords
+    ("[a-zA-Z_][a-zA-Z0-9_]*\s-*\(?:(\)" . (1 font-lock-function-name-face))) ;; Functions
+  "Syntax highlighting for Lobster.")
+
+(define-derived-mode lobster-mode prog-mode "Lobster"
+  "Major mode for editing Lobster language."
+  (setq font-lock-defaults '((lobster-font-lock-keywords))))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.lobster\\'" . lobster-mode))
+
+(provide 'lobster-mode)
+#+end_src
 * Nerd Icons
 #+begin_src emacs-lisp
   (use-package nerd-icons
