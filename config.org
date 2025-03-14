@@ -1253,6 +1253,7 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
       (add-hook 'csharp-ts-mode-hook #'eglot-ensure))
 #+end_src
 *** Lobster
+Made from [[https://github.com/lite-xl/lite-xl-plugins/blob/master/plugins/language_lobster.lua]]
 #+begin_src emacs-lisp
 (require 'font-lock)
 
