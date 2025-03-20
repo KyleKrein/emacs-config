@@ -65,6 +65,7 @@
         tree-sitter
         tree-sitter-langs
         treesit-grammars.with-all-grammars
+	el-easydraw
       ]));
 
     # Optionally override derivations.
