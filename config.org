@@ -680,7 +680,7 @@ This doesn-t work for me for now, very laggy and inconsistent
 #+end_src
 * Drawing tools
 [[https://github.com/misohena/el-easydraw][el-easydraw]]
-#+begin_src emacs-lispp
+#+begin_src emacs-lisp
   (use-package el-easydraw :ensure t)
   (with-eval-after-load 'org
     (require 'edraw-org)
