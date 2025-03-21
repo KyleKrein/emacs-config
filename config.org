@@ -692,6 +692,8 @@ This doesn-t work for me for now, very laggy and inconsistent
     (with-eval-after-load "ox"
       (require 'edraw-org)
       (edraw-org-setup-exporter))
+(require 'edraw-color-picker-mode)
+(edraw-color-picker-global-mode)
 #+end_src
 * RAINBOW DELIMITERS
 Adding rainbow coloring to parentheses.
