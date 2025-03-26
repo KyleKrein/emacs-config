@@ -658,24 +658,32 @@ This doesn-t work for me for now, very laggy and inconsistent
 * PDF Tools
 [[https://github.com/vedang/pdf-tools][pdf-tools]] is a replacement of DocView for viewing PDF files inside Emacs.  It uses the poppler library, which also means that ‘pdf-tools’ can by used to modify PDFs.  I use to disable ‘display-line-numbers-mode’ in ‘pdf-view-mode’ because line numbers crash it.
 #+begin_src emacs-lisp
- (unless (kylekrein/is-android) ;; fails to compile
-  (use-package pdf-tools
-    :ensure t
-    :defer t
-    :commands (pdf-loader-install)
-    :mode "\\.pdf\\'"
-    ;:bind (:map pdf-view-mode-map
-    ;            ("j" . pdf-view-next-line-or-next-page)
-    ;            ("k" . pdf-view-previous-line-or-previous-page)
-    ;            ("C-=" . pdf-view-enlarge)
-    ;            ("C--" . pdf-view-shrink))
-    :init (pdf-loader-install)
-    :config (add-to-list 'revert-without-query ".pdf"))
+   (unless (kylekrein/is-android) ;; fails to compile
+    (use-package pdf-tools
+      :ensure t
+      :defer t
+      :commands (pdf-loader-install)
+      :mode "\\.pdf\\'"
+      ;:bind (:map pdf-view-mode-map
+      ;            ("j" . pdf-view-next-line-or-next-page)
+      ;            ("k" . pdf-view-previous-line-or-previous-page)
+      ;            ("C-=" . pdf-view-enlarge)
+      ;            ("C--" . pdf-view-shrink))
+      :init (pdf-loader-install)
+      :config (add-to-list 'revert-without-query ".pdf"))
 
-  (add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)
-                                                           (blink-cursor-mode -1)
-                                                           (doom-modeline-mode -1))))
+    (add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)))
+  ;; edit -> view
+    (add-hook 'pdf-virtual-edit-mode-hook
+            (lambda ()
+              (define-key pdf-virtual-edit-mode-map (kbd "C-c C-c") #'pdf-view-mode)
+              )))
 
+  ;; view -> edit
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (define-key pdf-view-mode-map (kbd "C-c C-c") #'pdf-virtual-edit-mode)
+              ))
 #+end_src
 * Drawing tools
 [[https://github.com/misohena/el-easydraw][el-easydraw]]
