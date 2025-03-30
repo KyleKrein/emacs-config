@@ -13,8 +13,7 @@
   :vc (el-easydraw :url "https://github.com/misohena/el-easydraw.git"
             :branch "master")
   :init
-  (edraw-org-setup-default)
-  (edraw-color-picker-global-mode))
+  (edraw-org-setup-default))
 (org-babel-load-file
  (expand-file-name
   "config.org"

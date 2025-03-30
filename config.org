@@ -691,9 +691,7 @@ This doesn-t work for me for now, very laggy and inconsistent
         ;;(use-package el-easydraw :ensure t :demand nil)
       (with-eval-after-load 'org
           (require 'edraw-org)
-          (edraw-org-setup-default)
-          ;;(require 'edraw-color-picker-mode)
-  	(edraw-color-picker-global-mode))
+          (edraw-org-setup-default))
         ;; When using the org-export-in-background option (when using the
         ;; asynchronous export function), the following settings are
         ;; required. This is because Emacs started in a separate process does
