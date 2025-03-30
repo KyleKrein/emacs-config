@@ -11,7 +11,7 @@
   :ensure t
   ;;:after org
   :vc (:url "https://github.com/misohena/el-easydraw.git"
-            :branch master))
+            :branch "master"))
 (org-babel-load-file
  (expand-file-name
   "config.org"
