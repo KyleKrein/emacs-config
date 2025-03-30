@@ -7,11 +7,8 @@
 ;; (add-to-list 'package-archives
 ;;              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
-(use-package edraw-org
-  :ensure t
-  ;;:after org
-  :vc (:url "https://github.com/misohena/el-easydraw.git"
-            :branch "master"))
+(unless (package-installed-p 'el-easydraw)
+  (package-vc-install "https://github.com/misohena/el-easydraw.git"))
 (org-babel-load-file
  (expand-file-name
   "config.org"
