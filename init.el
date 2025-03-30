@@ -9,8 +9,12 @@
 (package-initialize)
 (use-package el-easydraw
   :ensure t
+  :after org
   :vc (el-easydraw :url "https://github.com/misohena/el-easydraw.git"
-            :branch "master"))
+            :branch "master")
+  :init
+  (edraw-org-setup-default)
+  (edraw-color-picker-global-mode))
 (org-babel-load-file
  (expand-file-name
   "config.org"
