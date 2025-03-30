@@ -9,7 +9,7 @@
 (package-initialize)
 (use-package edraw-org
   :ensure t
-  :after org
+  ;;:after org
   :vc (:url "https://github.com/misohena/el-easydraw"
             :branch master))
 (org-babel-load-file
