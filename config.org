@@ -688,19 +688,19 @@ This doesn-t work for me for now, very laggy and inconsistent
 * Drawing tools
 [[https://github.com/misohena/el-easydraw][el-easydraw]]
 #+begin_src emacs-lisp
-    ;;(use-package el-easydraw :ensure t :demand nil)
-  (with-eval-after-load 'org
-      (require 'edraw-org)
-      (edraw-org-setup-default))
-    ;; When using the org-export-in-background option (when using the
-    ;; asynchronous export function), the following settings are
-    ;; required. This is because Emacs started in a separate process does
-    ;; not load org.el but only ox.el.
-    (with-eval-after-load "ox"
-      (require 'edraw-org)
-      (edraw-org-setup-exporter))
-(require 'edraw-color-picker-mode)
-(edraw-color-picker-global-mode)
+        ;;(use-package el-easydraw :ensure t :demand nil)
+      (with-eval-after-load 'org
+          (require 'edraw-org)
+          (edraw-org-setup-default)
+          (require 'edraw-color-picker-mode)
+  	(edraw-color-picker-global-mode))
+        ;; When using the org-export-in-background option (when using the
+        ;; asynchronous export function), the following settings are
+        ;; required. This is because Emacs started in a separate process does
+        ;; not load org.el but only ox.el.
+        (with-eval-after-load "ox"
+          (require 'edraw-org)
+          (edraw-org-setup-exporter))
 #+end_src
 * RAINBOW DELIMITERS
 Adding rainbow coloring to parentheses.
