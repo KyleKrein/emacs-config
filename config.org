@@ -71,6 +71,8 @@
 - [[#password-store][Password store]]
 - [[#language-support][Language support]]
   - [[#nix][Nix]]
+  - [[#glsl][GLSL]]
+  - [[#rmlui][RmlUi]]
   - [[#cmake][CMake]]
   - [[#global-treesitter][Global treesitter]]
   - [[#eglot][Eglot]]
@@ -1198,6 +1200,16 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
   (use-package nix-ts-mode
    :ensure t
    :mode "\\.nix\\'")
+#+end_src
+** GLSL
+#+begin_src emacs-lisp
+(use-package glsl-mode
+    :ensure t)
+#+end_src
+** RmlUi
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.rml\\'" . html-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.rcss\\'" . css-ts-mode))
 #+end_src
 ** CMake
 #+begin_src emacs-lisp
