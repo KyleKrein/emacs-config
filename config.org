@@ -23,6 +23,7 @@
 - [[#emoji][Emoji]]
   - [[#copy-to-clipboard-1][Copy to clipboard]]
   - [[#standalone-emoji-picker][Standalone emoji picker]]
+- [[#ediff][EDIFF]]
 - [[#fonts][Fonts]]
 - [[#sane-defaults][Sane defaults]]
   - [[#battery-info][Battery info]]
@@ -541,7 +542,11 @@ To use it, create a global keyboard shortcut with the following code
 		    (make-frame-invisible launcher-frame)
                     (run-at-time "60 sec" nil (lambda (frame) (delete-frame frame)) launcher-frame))))
 #+end_src
-
+* EDIFF
+#+begin_src emacs-lisp
+(setq ediff-split-window-function 'split-window-horizontally)
+;;(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
 * Fonts
 Defining the various fonts that Emacs will use.
 #+begin_src emacs-lisp
