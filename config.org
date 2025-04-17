@@ -63,6 +63,7 @@
   - [[#org-timeblock][org-timeblock]]
   - [[#notifications-1][Notifications]]
 - [[#rainbow-mode][RAINBOW MODE]]
+- [[#ai][AI]]
 - [[#shells-and-terminals][SHELLS AND TERMINALS]]
   - [[#eshell][Eshell]]
   - [[#vterm][Vterm]]
@@ -1130,6 +1131,22 @@ Display the actual color as a background for any hex color value (ex. #ffffff). 
     :ensure t
     :hook 
     ((org-mode prog-mode) . rainbow-mode))
+#+end_src
+* AI
+#+begin_src emacs-lisp
+    (use-package ellama
+      :ensure t
+      :bind ("C-c e" . ellama)
+      ;; send last message in chat buffer with C-c C-c
+      :hook (org-ctrl-c-ctrl-c-final . ellama-chat-send-last-message)
+      :init 
+      (setopt ellama-auto-scroll t)
+      (setopt ellama-language "Russian")
+      :config
+      ;; show ellama context in header line in all buffers
+      (ellama-context-header-line-global-mode +1)
+      ;; show ellama session id in header line in all buffers
+      (ellama-session-header-line-global-mode +1))
 #+end_src
 * SHELLS AND TERMINALS
 ** Eshell
