@@ -1137,20 +1137,21 @@ Display the actual color as a background for any hex color value (ex. #ffffff). 
 #+end_src
 * AI
 ** Ellama
-#+begin_src emacs-lisp
-    (use-package ellama
-      :ensure t
-      :bind ("C-c e" . ellama)
-      ;; send last message in chat buffer with C-c C-c
-      :hook (org-ctrl-c-ctrl-c-final . ellama-chat-send-last-message)
-      :init 
-      (setopt ellama-auto-scroll t)
-      (setopt ellama-language "Russian")
-      :config
-      ;; show ellama context in header line in all buffers
-      ;;(ellama-context-header-line-global-mode +1)
-      ;; show ellama session id in header line in all buffers
-      ;;(ellama-session-header-line-global-mode +1))
+#+begin_src emacs-lispp
+      (use-package ellama
+        :ensure t
+        :bind ("C-c e" . ellama)
+        ;; send last message in chat buffer with C-c C-c
+        :hook (org-ctrl-c-ctrl-c-final . ellama-chat-send-last-message)
+        :init 
+        (setopt ellama-auto-scroll t)
+        (setopt ellama-language "Russian")
+        :config
+        ;; show ellama context in header line in all buffers
+        ;;(ellama-context-header-line-global-mode +1)
+        ;; show ellama session id in header line in all buffers
+        ;;(ellama-session-header-line-global-mode +1)
+        )
 #+end_src
 ** GPT.el
 #+begin_src emacs-lisp
