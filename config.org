@@ -24,6 +24,7 @@
   - [[#copy-to-clipboard-1][Copy to clipboard]]
   - [[#standalone-emoji-picker][Standalone emoji picker]]
 - [[#ediff][EDIFF]]
+- [[#emacs-everywhere][Emacs Everywhere]]
 - [[#fonts][Fonts]]
 - [[#sane-defaults][Sane defaults]]
   - [[#battery-info][Battery info]]
@@ -552,6 +553,10 @@ To use it, create a global keyboard shortcut with the following code
 #+begin_src emacs-lisp
 (setq ediff-split-window-function 'split-window-horizontally)
 ;;(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+* Emacs Everywhere
+#+begin_src emacs-lisp
+(use-package emacs-everywhere :ensure t)
 #+end_src
 * Fonts
 Defining the various fonts that Emacs will use.
