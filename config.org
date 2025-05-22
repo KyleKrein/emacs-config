@@ -555,7 +555,8 @@ To use it, create a global keyboard shortcut with the following code
 ;;(setq ediff-window-setup-function 'ediff-setup-windows-plain)
 #+end_src
 * Emacs Everywhere
-#+begin_src emacs-lisp
+Doesn't work on Hyprland (22.05.2025)
+#+begin_src emacs-lispp
 (use-package emacs-everywhere :ensure t)
 #+end_src
 * Fonts
