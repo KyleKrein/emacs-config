@@ -1167,7 +1167,7 @@ Display the actual color as a background for any hex color value (ex. #ffffff). 
    gptel-backend (gptel-make-ollama "Ollama"
                    :host "localhost:11434"
                    :stream t
-                   :models '(llama3.1))
+                   :models '(llama3.1 qwen2.5-coder:7b))
    gptel-track-media t
    gptel-default-mode 'org-mode)
 (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
@@ -1212,9 +1212,9 @@ Display the actual color as a background for any hex color value (ex. #ffffff). 
     ;; Consider using APPDATA instead.
     (plist-put minuet-openai-fim-compatible-options :name "Ollama")
     (plist-put minuet-openai-fim-compatible-options :api-key "TERM")
-    (plist-put minuet-openai-fim-compatible-options :model "llama3.1")
+    (plist-put minuet-openai-fim-compatible-options :model "qwen2.5-coder:7b")
 
-    (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 56))
+    (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 80))
 #+end_src
 * SHELLS AND TERMINALS
 ** Eshell
