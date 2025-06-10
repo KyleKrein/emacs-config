@@ -1200,7 +1200,7 @@ Display the actual color as a background for any hex color value (ex. #ffffff). 
     :init
     ;; if you want to enable auto suggestion.
     ;; Note that you can manually invoke completions without enable minuet-auto-suggestion-mode
-    (add-hook 'prog-mode-hook #'minuet-auto-suggestion-mode)
+    ;;(add-hook 'prog-mode-hook #'minuet-auto-suggestion-mode)
 
     :config
     ;; You can use M-x minuet-configure-provider to interactively configure provider and model
