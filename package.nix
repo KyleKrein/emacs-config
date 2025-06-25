@@ -82,6 +82,7 @@
       ubuntu-classic
       nerd-fonts.symbols-only
       hack-font
+      noto-fonts-emoji
     ];
   };
   mkEmacs = emacs:
