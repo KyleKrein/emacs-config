@@ -1,6 +1,6 @@
 {
   pkgs,
-  x11 ? false,
+  withLsps ? false,
   ...
 }: let
   configFile = pkgs.tangleOrgBabelFile "default.el" ./config.org {
@@ -26,10 +26,7 @@
     #   };
     defaultInitFile = true;
     # Package is optional, defaults to pkgs.emacs
-    package =
-      if x11
-      then pkgs.emacs30
-      else pkgs.emacs30-pgtk;
+    package = pkgs.emacs30-pgtk;
 
     # By default emacsWithPackagesFromUsePackage will only pull in
     # packages with `:ensure`, `:ensure t` or `:ensure <package name>`.
@@ -66,7 +63,7 @@
         tree-sitter-langs
         treesit-grammars.with-all-grammars
 	el-easydraw
-      ]));
+      ]) ++ (with pkgs; lib.optional (withLsps) [ csharp-ls clang-tools cmake-language-server ]));
 
     # Optionally override derivations.
     override = final: prev: {

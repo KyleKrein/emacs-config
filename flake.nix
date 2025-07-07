@@ -37,7 +37,7 @@
         ];
       };
     };
-    packages.x86_64-linux.x11 = import ./package.nix {
+    packages.x86_64-linux.with-lsps = import ./package.nix {
       pkgs = import nixpkgs {
         system = "x86_64-linux";
         overlays = [
@@ -45,9 +45,9 @@
           nix-org-babel.overlays.default
         ];
       };
-      x11 = true;
+      withLsps = true;
     };
-    packages.aarch64-linux.x11 = import ./package.nix {
+    packages.aarch64-linux.with-lsps = import ./package.nix {
       pkgs = import nixpkgs {
         system = "aarch64-linux";
         overlays = [
@@ -55,7 +55,7 @@
           nix-org-babel.overlays.default
         ];
       };
-      x11 = true;
+      withLsps = true;
     };
   };
 }
