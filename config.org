@@ -74,6 +74,7 @@
   - [[#vterm-toggle][Vterm-Toggle]]
 - [[#sudo-edit][SUDO EDIT]]
 - [[#password-store][Password store]]
+- [[#cmake-projects][CMake Projects]]
 - [[#language-support][Language support]]
   - [[#nix][Nix]]
   - [[#glsl][GLSL]]
@@ -1283,6 +1284,91 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
   (use-package pass
      :ensure t)
   (setq epg-pinentry-mode 'loopback)
+#+end_src
+* CMake Projects
+#+begin_src emacs-lisp
+  (defun eval-elisp-string (code-string)
+    "Evaluate the Elisp code contained in CODE-STRING and return the result."
+  (eval (read code-string)))
+    (defun use-cmake-integration ()
+    (interactive)
+    (eval-elisp-string "(use-package cmake-integration \
+      :vc (:url \"https://github.com/darcamo/cmake-integration.git\" \
+                :rev :newest) \
+      :commands (cmake-integration-transient) \
+      :custom \
+      (cmake-integration-generator \"Ninja\") \
+      (cmake-integration-use-separated-compilation-buffer-for-each-target t))"))
+
+    (defun is-cmake-project? ()
+      "Determine if the current directory is a CMake project."
+      (interactive)
+      (if-let* ((project (project-current))
+                (project-root (project-root project))
+                (cmakelist-path (expand-file-name "CMakeLists.txt" project-root)))
+          (file-exists-p cmakelist-path)))
+
+
+    (defun cmake-integration-keybindings-mode-turn-on-in-cmake-projects ()
+      "Turn on `cmake-integration-keybindings-mode' in CMake projects."
+      (when (is-cmake-project?)
+        (use-cmake-integration)
+        (cmake-integration-keybindings-mode 1)))
+
+          
+    (define-minor-mode cmake-integration-keybindings-mode
+      "A minor-mode for adding keybindings to compile C++ code using cmake-integration package."
+      nil
+      "cmake"
+      '(
+        ([f5] . cmake-integration-transient)                         ;; Open main transient menu
+        ([M-f9] . cmake-integration-save-and-compile)                ;; Ask for the target name and compile it
+        ([f9] . cmake-integration-save-and-compile-last-target)      ;; Recompile the last target
+        ([C-f9] . cmake-integration-run-ctest)                       ;; Run CTest
+        ([f10] . cmake-integration-run-last-target)                  ;; Run the target (using any previously set command line parameters)
+        ([S-f10] . kill-compilation)
+        ([C-f10] . cmake-integration-debug-last-target)              ;; Debug the target (using any previously set command line parameters)
+        ([M-f10] . cmake-integration-run-last-target-with-arguments) ;; Ask for command line parameters to run the target
+        ([M-f8] . cmake-integration-select-configure-preset)         ;; Ask for a preset name and call CMake to configure the project
+        ([f8] . cmake-integration-cmake-reconfigure)                 ;; Call CMake to configure the project using the last chosen preset
+        )
+      )
+
+    (define-globalized-minor-mode global-cmake-integration-keybindings-mode
+      cmake-integration-keybindings-mode cmake-integration-keybindings-mode-turn-on-in-cmake-projects)
+
+
+    (global-cmake-integration-keybindings-mode)
+
+    ;; Extend project.el to recognize local projects based on a .project file
+    (cl-defmethod project-root ((project (head local)))
+      (cdr project))
+
+    (defun mu--project-files-in-directory (dir)
+      "Use `fd' to list files in DIR."
+      (let* ((default-directory dir)
+             (localdir (file-local-name (expand-file-name dir)))
+             (command (format "fd -t f -0 . %s" localdir)))
+        (project--remote-file-names
+         (sort (split-string (shell-command-to-string command) "\0" t)
+               #'string<))))
+
+    (cl-defmethod project-files ((project (head local)) &optional dirs)
+      "Override `project-files' to use `fd' in local projects."
+      (mapcan #'mu--project-files-in-directory
+              (or dirs (list (project-root project)))))
+
+    (defun mu-project-try-local (dir)
+      "Determine if DIR is a non-Git project.
+    DIR must include a .project file to be considered a project."
+      (let ((root (locate-dominating-file dir ".project")))
+        (and root (cons 'local root))))
+
+    (use-package project
+      :defer t
+      :config
+      (add-to-list 'project-find-functions 'mu-project-try-local)
+      )
 #+end_src
 * Language support
 Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM, AWK, C, C++, Fortran, Icon, IDL (CORBA), IDLWAVE, Java, Javascript, M4, Makefiles, Metafont, Modula2, Object Pascal, Objective-C, Octave, Pascal, Perl, Pike, PostScript, Prolog, Python, Ruby, Simula, SQL, Tcl, Verilog, and VHDL.  Other languages will require you to install additional modes.
