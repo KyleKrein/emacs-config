@@ -58,6 +58,7 @@
         imagemagick
         fontconfig
         freetype
+	ripgrep
       ] ++ (with epkgs;[
         tree-sitter
         tree-sitter-langs
