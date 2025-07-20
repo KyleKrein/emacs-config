@@ -59,6 +59,11 @@
         fontconfig
         freetype
 	ripgrep
+	vips
+	ffmpegthumbnailer
+	mediainfo
+	p7zip
+	epub-thumbnailer
       ] ++ (with epkgs;[
         tree-sitter
         tree-sitter-langs

@@ -129,13 +129,13 @@ Found this [[https://emacs.stackexchange.com/questions/21770/automatically-switc
     (interactive)
     (split-window-below)
     (balance-windows)
-    (other-window 1))
+    (other-window nil))
 
   (defun split-and-follow-vertically ()
     (interactive)
     (split-window-right)
     (balance-windows)
-    (other-window 1))
+    (other-window nil))
 
   (use-package emacs
     :bind (:map ctl-x-map
@@ -511,19 +511,65 @@ This package implements hiding or abbreviation of the modeline displays (lighter
 #+end_src
 * DIRED (File manager)
 #+begin_src emacs-lisp
-(use-package dired-open
-  :ensure t
-  :config
-  (setq dired-open-extensions '(("gif" . "gwenview")
-                                ("jpg" . "gwenview")
-                                ("png" . "gwenview")
-                                ("mkv" . "vlc")
-                                ("mp4" . "vlc"))))
+  (use-package dired-open
+    :ensure t
+    :config
+    (setq dired-open-extensions '(("gif" . "gwenview")
+                                  ("jpg" . "gwenview")
+                                  ("png" . "gwenview")
+                                  ("mkv" . "vlc")
+                                  ("mp4" . "vlc"))))
 
-(use-package peep-dired
-  :ensure t
-  :after dired
-)
+  (use-package dired
+    :config
+    (setq dired-listing-switches
+          "--almost-all --human-readable --group-directories-first --no-group")
+    ;; this command is useful when you want to close the window of `dirvish-side'
+    ;; automatically when opening a file
+    (put 'dired-find-alternate-file 'disabled nil))
+
+  (use-package dirvish
+    :ensure t
+    :init
+    (dirvish-override-dired-mode)
+    :custom
+    (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+     '(("h" "~/"                          "Home")
+       ("d" "~/Downloads/"                "Downloads")))
+    :config
+    (dirvish-peek-mode)             ; Preview files in minibuffer
+    (dirvish-side-follow-mode)      ; similar to `treemacs-follow-mode'
+    (setq dirvish-mode-line-format
+          '(:left (sort symlink) :right (omit yank index)))
+    (setq dirvish-attributes           ; The order *MATTERS* for some attributes
+          '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size)
+          dirvish-side-attributes
+          '(vc-state nerd-icons collapse file-size))
+    ;; open large directory (over 20000 files) asynchronously with `fd' command
+    (setq dirvish-large-directory-threshold 20000)
+    (setq dirvish-use-mode-line nil)
+    (setq dirvish-default-layout '(0 0.4 0.6))
+    :bind ; Bind `dirvish-fd|dirvish-side|dirvish-dwim' as you see fit
+    (("C-c f" . dirvish-dwim)
+     :map dirvish-mode-map               ; Dirvish inherits `dired-mode-map'
+     (";"   . dired-up-directory)        ; So you can adjust `dired' bindings here
+     ("?"   . dirvish-dispatch)          ; [?] a helpful cheatsheet
+     ("a"   . dirvish-setup-menu)        ; [a]ttributes settings:`t' toggles mtime, `f' toggles fullframe, etc.
+     ("f"   . dirvish-file-info-menu)    ; [f]ile info
+     ("o"   . dirvish-quick-access)      ; [o]pen `dirvish-quick-access-entries'
+     ("s"   . dirvish-quicksort)         ; [s]ort flie list
+     ("r"   . dirvish-history-jump)      ; [r]ecent visited
+     ("l"   . dirvish-ls-switches-menu)  ; [l]s command flags
+     ("v"   . dirvish-vc-menu)           ; [v]ersion control commands
+     ("*"   . dirvish-mark-menu)
+     ("y"   . dirvish-yank-menu)
+     ("N"   . dirvish-narrow)
+     ("^"   . dirvish-history-last)
+     ("TAB" . dirvish-subtree-toggle)
+     ("M-f" . dirvish-history-go-forward)
+     ("M-b" . dirvish-history-go-backward)
+     ("M-e" . dirvish-emerge-menu)))
+
 #+end_src
 * Emoji
 ** Copy to clipboard
@@ -606,10 +652,13 @@ The following settings are simple modes that are enabled (or disabled) so that E
                    `(lambda (c)
                   (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
 (global-auto-revert-mode t)  ;; Automatically show changes if the file has changed
-(global-display-line-numbers-mode 1) ;; Display line numbers
+;;(global-display-line-numbers-mode 1) ;; Display line numbers
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (global-visual-line-mode t)  ;; Enable truncated lines
 (winner-mode t) ;; Undo (C-c <left>) and Redo (C-c <right>) for windows
 (setq sentence-end-double-space t) ;; Single space doesn't end a sentence
+
+(save-place-mode t) ;; Restore cursor place in file
 #+end_src
 ** Battery info
 #+begin_src emacs-lisp
