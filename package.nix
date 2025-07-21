@@ -65,6 +65,8 @@
 	p7zip
 	epub-thumbnailer
 	poppler-utils
+	gzip
+	gnutar
       ] ++ (with epkgs;[
         tree-sitter
         tree-sitter-langs
