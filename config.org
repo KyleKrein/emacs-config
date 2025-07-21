@@ -6,6 +6,7 @@
 * Table of contents :toc:
 - [[#important-programs-to-load-first][IMPORTANT PROGRAMS TO LOAD FIRST]]
   - [[#recent-files][Recent Files]]
+  - [[#duplicate-line][Duplicate line]]
   - [[#keybindings][Keybindings]]
   - [[#focus-new-windows][Focus new windows]]
 - [[#support-functions][Support functions]]
@@ -85,6 +86,7 @@
 - [[#nerd-icons][Nerd Icons]]
   - [[#nerd-icons-completion][Nerd Icons Completion]]
 - [[#persist-state][Persist state]]
+- [[#multiple-cursors][Multiple cursors]]
 - [[#buffer-move][Buffer Move]]
 - [[#completions][Completions]]
   - [[#corfu][Corfu]]
@@ -111,6 +113,20 @@
 #+begin_src emacs-lisp
 (recentf-mode t)
 #+end_src
+** Duplicate line
+#+begin_src emacs-lisp
+(defun kylekrein/duplicate-line()
+  "Duplicate current line and move cursor to it"
+  (interactive)
+  (let ((column (- (point) (point-at-bol)))
+        (line (let ((s (thing-at-point 'line t)))
+            (if s (string-remove-suffix "\n" s) ""))))
+       (move-end-of-line 1)
+       (newline)
+       (insert line)
+       (move-beginning-of-line 1)
+       (forward-char column)))
+#+end_src
 ** Keybindings
 #+begin_src emacs-lisp
 (global-set-key [remap list-buffers] 'ibuffer)
@@ -120,7 +136,9 @@
 (global-set-key (kbd "C-c o d") 'dashboard-open)
 (global-set-key (kbd "C-c o p") 'pass)
 (global-set-key (kbd "C-c o m") 'magit)
-;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
+
+(global-set-key (kbd "C-.") 'kylekrein/duplicate-line)
+(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
 #+end_src
 ** Focus new windows
 Found this [[https://emacs.stackexchange.com/questions/21770/automatically-switch-focus-to-new-window][here]] and [[https://github.com/snackon/Witchmacs#creating-a-new-window-switches-your-cursor-to-it][here]]
@@ -1572,6 +1590,21 @@ Made from [[https://github.com/lite-xl/lite-xl-plugins/blob/master/plugins/langu
     :if server-process
     :config
     (persist-state-mode))
+#+end_src
+* Multiple cursors
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+:ensure t
+:bind (
+("C-S-c C-S-c" . mc/edit-lines)
+("C->" . mc/mark-next-like-this)
+("C-<" . mc/mark-previous-like-this)
+("C-C C-<" . mc/mark-all-like-this)
+("C-\"" . mc/skip-to-next-like-this)
+("C-:" . mc/skip-to-previous-like-this)
+("C-C C->" . mc/mark-more-like-this-extended)
+("C-S-<mouse-1>" . mc/add-cursor-on-click)
+))
 #+end_src
 * Buffer Move
 Creating some functions to allow us to easily move windows (splits) around.  The following block of code was taken from buffer-move.el found on the EmacsWiki:
