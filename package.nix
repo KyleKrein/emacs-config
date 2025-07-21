@@ -64,6 +64,7 @@
 	mediainfo
 	p7zip
 	epub-thumbnailer
+	poppler-utils
       ] ++ (with epkgs;[
         tree-sitter
         tree-sitter-langs
