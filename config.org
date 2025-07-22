@@ -51,6 +51,7 @@
   - [[#org-transclusion][Org transclusion]]
 - [[#org-roam][ORG ROAM]]
   - [[#org-roam-itself][Org Roam itself]]
+  - [[#ripgrep-files][Ripgrep files]]
   - [[#org-roam-ui][Org Roam UI]]
   - [[#inbox][Inbox]]
   - [[#capture-a-task-directly-into-project][Capture a task directly into Project]]
@@ -942,6 +943,16 @@ Org-tempo is not a separate package but a module within org that can be enabled.
     (require 'org-roam-dailies) ;; Ensure the keymap is available
     (org-roam-db-autosync-mode)
     (org-roam-setup))
+#+end_src
+** Ripgrep files
+#+begin_src emacs-lisp
+  (defun kylekrein/org-roam-ripgrep ()
+    (interactive)
+    (require 'consult)
+    (require 'org-roam)
+    (let ((consult-ripgrep-command "rg --null --ignore-case --type org --line-buffered --color=always --max-columns=500 --no-heading --line-number . -e ARG OPTS"))
+    (consult-ripgrep org-roam-directory)))
+  (global-set-key (kbd "C-c n r") #'kylekrein/org-roam-ripgrep)
 #+end_src
 ** Org Roam UI
 #+begin_src emacs-lisp
