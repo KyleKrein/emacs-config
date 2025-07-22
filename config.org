@@ -146,14 +146,12 @@ Found this [[https://emacs.stackexchange.com/questions/21770/automatically-switc
   (defun split-and-follow-horizontally ()
     (interactive)
     (split-window-below)
-    (balance-windows)
-    (other-window nil))
+    (balance-windows))
 
   (defun split-and-follow-vertically ()
     (interactive)
     (split-window-right)
-    (balance-windows)
-    (other-window nil))
+    (balance-windows))
 
   (use-package emacs
     :bind (:map ctl-x-map
@@ -555,7 +553,7 @@ This package implements hiding or abbreviation of the modeline displays (lighter
      '(("h" "~/"                          "Home")
        ("d" "~/Downloads/"                "Downloads")))
     :config
-    (dirvish-peek-mode)             ; Preview files in minibuffer
+    ;;(dirvish-peek-mode)             ; Preview files in minibuffer
     (dirvish-side-follow-mode)      ; similar to `treemacs-follow-mode'
     (setq dirvish-mode-line-format
           '(:left (sort symlink) :right (omit yank index)))
@@ -569,6 +567,7 @@ This package implements hiding or abbreviation of the modeline displays (lighter
     (setq dirvish-default-layout '(0 0.4 0.6))
     :bind ; Bind `dirvish-fd|dirvish-side|dirvish-dwim' as you see fit
     (("C-c f" . dirvish-dwim)
+     ("C-c o f" . dirvish-side)
      :map dirvish-mode-map               ; Dirvish inherits `dired-mode-map'
      (";"   . dired-up-directory)        ; So you can adjust `dired' bindings here
      ("?"   . dirvish-dispatch)          ; [?] a helpful cheatsheet
