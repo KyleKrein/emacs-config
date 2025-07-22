@@ -72,7 +72,12 @@
         tree-sitter-langs
         treesit-grammars.with-all-grammars
 	el-easydraw
-      ]) ++ lib.optionals (withLsps) [ csharp-ls clang-tools cmake-language-server ]);
+      ]) ++ lib.optionals (withLsps) [ 
+	csharp-ls
+	clang-tools
+	cmake-language-server 
+	nil
+      ]);
 
     # Optionally override derivations.
     override = final: prev: {
