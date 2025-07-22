@@ -1490,6 +1490,23 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
    :ensure t
    :mode "\\.nix\\'")
 #+end_src
+
+[[https://github.com/emacs-twist/nix3.el][nix3.el]]
+#+begin_src emacs-lisp
+      (use-package promise :ensure t) ;; nix3 dependency
+      (eval-elisp-string "(use-package nix3 \
+            :vc (:url \"https://github.com/emacs-twist/nix3.el\" \
+                      :rev :newest)\
+            :init \
+    (let* ((mainpkg-dir (file-name-directory (locate-library \"nix3\"))) \
+           (subpkg-dir (expand-file-name \"extra\" mainpkg-dir))) \
+      (add-to-list 'load-path subpkg-dir)))")
+
+      (use-package magit-nix3
+        :after magit-status
+        :config
+        (magit-nix3-flake-mode t))
+#+end_src
 ** GLSL
 #+begin_src emacs-lisp
 (use-package glsl-mode
