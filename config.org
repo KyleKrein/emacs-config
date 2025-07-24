@@ -4,8 +4,9 @@
 #+PROPERTY: header-args:emacs-lisp :lexical t
 
 * Table of contents :toc:
-- [[#important-programs-to-load-first][IMPORTANT PROGRAMS TO LOAD FIRST]]
+- [[#some-random-stuff-to-load-first][Some random stuff to load first]]
   - [[#recent-files][Recent Files]]
+  - [[#golden-ratio][Golden ratio]]
   - [[#duplicate-line][Duplicate line]]
   - [[#keybindings][Keybindings]]
   - [[#focus-new-windows][Focus new windows]]
@@ -111,10 +112,19 @@
 - [[#emacs-on-wsl][Emacs on WSL]]
   - [[#clipboard-fix][Clipboard fix]]
 
-* IMPORTANT PROGRAMS TO LOAD FIRST
+* Some random stuff to load first
 ** Recent Files
 #+begin_src emacs-lisp
 (recentf-mode t)
+#+end_src
+** Golden ratio
+[[https://github.com/roman/golden-ratio.el][golden-ratio.el]] resizes windows content that you're working on
+#+begin_src emacs-lisp
+  (use-package golden-ratio
+    :ensure t
+    :init 
+    (setq golden-ratio-auto-scale t)
+    (golden-ratio-mode 1))
 #+end_src
 ** Duplicate line
 #+begin_src emacs-lisp
