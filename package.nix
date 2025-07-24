@@ -3,7 +3,13 @@
   withLsps ? false,
   ...
 }: let
-  configFile = pkgs.tangleOrgBabelFile "default.el" ./config.org {
+  preTangledFile = pkgs.writeText "config.org" ''
+  ${builtins.readFile ./config.org}
+  #+begin_src emacs-lisp
+  (setq dashboard-startup-banner "${./nixmacs.xpm}")
+  #+end_src
+  '';
+  configFile = pkgs.tangleOrgBabelFile "default.el" preTangledFile {
     languages = ["emacs-lisp"];
   };
   emacs = pkgs.emacsWithPackagesFromUsePackage {
