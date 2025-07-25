@@ -39,9 +39,7 @@
     packages = eachSystem (system: let
       pkgs = pkgsFor.${system};
     in {
-      default = import ./package.nix {
-        inherit pkgs;
-      };
+      default = pkgs.callPackage ./package.nix {};
       with-lsps = self.packages.${system}.default.override {
         withLsps = true;
       };
