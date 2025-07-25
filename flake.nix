@@ -18,44 +18,39 @@
     nixpkgs,
     emacs-overlay,
     nix-org-babel,
-  }: {
-    packages.x86_64-linux.default = import ./package.nix {
-      pkgs = import nixpkgs {
-        system = "x86_64-linux";
+  }: let
+    systems = ["aarch64-linux" "x86_64-linux"];
+    eachSystem = nixpkgs.lib.genAttrs systems;
+    pkgsFor = eachSystem (system:
+      import nixpkgs {
+        localSystem = system;
         overlays = [
           emacs-overlay.overlays.default
           nix-org-babel.overlays.default
         ];
+      });
+  in {
+    formatter = eachSystem (
+      system: let
+        pkgs = pkgsFor.${system};
+      in
+        pkgs.alejandra
+    );
+    packages = eachSystem (system: let
+      pkgs = pkgsFor.${system};
+    in {
+      default = import ./package.nix {
+        inherit pkgs;
       };
-    };
-    packages.aarch64-linux.default = import ./package.nix {
-      pkgs = import nixpkgs {
-        system = "aarch64-linux";
-        overlays = [
-          emacs-overlay.overlays.default
-          nix-org-babel.overlays.default
-        ];
+      with-lsps = self.packages.${system}.default.override {
+        withLsps = true;
       };
-    };
-    packages.x86_64-linux.with-lsps = import ./package.nix {
-      pkgs = import nixpkgs {
-        system = "x86_64-linux";
-        overlays = [
-          emacs-overlay.overlays.default
-          nix-org-babel.overlays.default
-        ];
+      native = self.packages.${system}.default.override {
+        native = true;
       };
-      withLsps = true;
-    };
-    packages.aarch64-linux.with-lsps = import ./package.nix {
-      pkgs = import nixpkgs {
-        system = "aarch64-linux";
-        overlays = [
-          emacs-overlay.overlays.default
-          nix-org-babel.overlays.default
-        ];
+      with-lsps-native = self.packages.${system}.with-lsps.override {
+        native = true;
       };
-      withLsps = true;
-    };
+    });
   };
 }

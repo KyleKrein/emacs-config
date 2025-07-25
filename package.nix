@@ -5,10 +5,10 @@
   ...
 }: let
   preTangledFile = pkgs.writeText "config.org" ''
-  ${builtins.readFile ./config.org}
-  #+begin_src emacs-lisp
-  (setq dashboard-startup-banner "${./nixmacs.xpm}")
-  #+end_src
+    ${builtins.readFile ./config.org}
+    #+begin_src emacs-lisp
+    (setq dashboard-startup-banner "${./nixmacs.xpm}")
+    #+end_src
   '';
   configFile = pkgs.tangleOrgBabelFile "default.el" preTangledFile {
     languages = ["emacs-lisp"];
@@ -33,11 +33,15 @@
     #   };
     defaultInitFile = true;
     # Package is optional, defaults to pkgs.emacs
-    package = if native then pkgs.emacs30-pgtk.overrideAttrs (
-      oldAttrs: {
-        NIX_CFLAGS_COMPILE = builtins.toString oldAttrs.NIX_CFLAGS_COMPILE or "" + "-march=native -O3";
-      }
-    ) else pkgs.emacs30-pgtk;
+    package =
+      if native
+      then
+        pkgs.emacs30-pgtk.overrideAttrs (
+          oldAttrs: {
+            NIX_CFLAGS_COMPILE = builtins.toString oldAttrs.NIX_CFLAGS_COMPILE or "" + "-march=native -O3";
+          }
+        )
+      else pkgs.emacs30-pgtk;
 
     # By default emacsWithPackagesFromUsePackage will only pull in
     # packages with `:ensure`, `:ensure t` or `:ensure <package name>`.
@@ -60,8 +64,8 @@
     # Optionally provide extra packages not in the configuration file.
     # This can also include extra executables to be run by Emacs (linters,
     # language servers, formatters, etc)
-    extraEmacsPackages = epkgs:
-      (with pkgs; [
+    extraEmacsPackages = epkgs: (with pkgs;
+      [
         #nerd-fonts.jetbrains-mono
         #jetbrains-mono
         unzip
@@ -69,25 +73,27 @@
         imagemagick
         fontconfig
         freetype
-	ripgrep
-	vips
-	ffmpegthumbnailer
-	mediainfo
-	p7zip
-	epub-thumbnailer
-	poppler-utils
-	gzip
-	gnutar
-      ] ++ (with epkgs;[
+        ripgrep
+        vips
+        ffmpegthumbnailer
+        mediainfo
+        p7zip
+        epub-thumbnailer
+        poppler-utils
+        gzip
+        gnutar
+      ]
+      ++ (with epkgs; [
         tree-sitter
         tree-sitter-langs
         treesit-grammars.with-all-grammars
-	el-easydraw
-      ]) ++ lib.optionals (withLsps) [ 
-	csharp-ls
-	clang-tools
-	cmake-language-server 
-	nil
+        el-easydraw
+      ])
+      ++ lib.optionals withLsps [
+        csharp-ls
+        clang-tools
+        cmake-language-server
+        nil
       ]);
 
     # Optionally override derivations.
