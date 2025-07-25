@@ -1,6 +1,7 @@
 {
   pkgs,
   withLsps ? false,
+  native ? false,
   ...
 }: let
   preTangledFile = pkgs.writeText "config.org" ''
@@ -32,7 +33,11 @@
     #   };
     defaultInitFile = true;
     # Package is optional, defaults to pkgs.emacs
-    package = pkgs.emacs30-pgtk;
+    package = if native then pkgs.emacs30-pgtk.overrideAttrs (
+      oldAttrs: {
+        NIX_CFLAGS_COMPILE = builtins.toString oldAttrs.NIX_CFLAGS_COMPILE or "" + "-march=native -O3";
+      }
+    ) else pkgs.emacs30-pgtk;
 
     # By default emacsWithPackagesFromUsePackage will only pull in
     # packages with `:ensure`, `:ensure t` or `:ensure <package name>`.
