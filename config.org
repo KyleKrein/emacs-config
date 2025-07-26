@@ -541,7 +541,7 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
                                 (bookmarks . "nf-oct-book")))
     :config
     (dashboard-setup-startup-hook))
-  (setq dashboard-startup-banner "~/.emacs.d/nixmacs.xpm")  ;; use custom image as banner
+  (setq dashboard-startup-banner '("~/.emacs.d/nixmacs.xpm" 'logo))
 #+end_src
 * Diminish
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
@@ -1502,7 +1502,17 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
 #+begin_src emacs-lisp
   (use-package nix-ts-mode
    :ensure t
-   :mode "\\.nix\\'")
+   :mode "\\.nix\\'"
+   :hook
+   (nix-ts-mode . lsp-deferred) ;; So that envrc mode will work
+   :custom
+   (lsp-disabled-clients '((nix-ts-mode . nix-nil))) ;; Disable nil so that nixd will be used as lsp-server
+   :config
+   (setq lsp-nix-nixd-server-path "nixd"
+         lsp-nix-nixd-formatting-command [ "alejandra" ]
+         lsp-nix-nixd-nixpkgs-expr "import <nixpkgs> { }"
+         lsp-nix-nixd-nixos-options-expr "(builtins.getFlake \"github:kylekrein/nixos-config\".nixosConfigurations.kylekrein-homepc.options"
+         lsp-nix-nixd-home-manager-options-expr "(builtins.getFlake \"github:kylekrein/nixos-config\".nixosConfigurations.kylekrein-homepc.options.home-manager.users.type.getSubOptions []"))
 #+end_src
 
 [[https://github.com/emacs-twist/nix3.el][nix3.el]]
@@ -1594,6 +1604,14 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
           '(csharp-ts-mode
                . ("csharp-ls")))
       (add-hook 'csharp-ts-mode-hook #'eglot-ensure))
+#+end_src
+*** Python
+#+begin_src emacs-lisp
+(with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+          '(python-ts-mode
+               . ("ty")))
+      (add-hook 'python-ts-mode-hook #'eglot-ensure))
 #+end_src
 *** Lobster
 Made from [[https://github.com/lite-xl/lite-xl-plugins/blob/master/plugins/language_lobster.lua]]

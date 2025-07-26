@@ -7,7 +7,7 @@
   preTangledFile = pkgs.writeText "config.org" ''
     ${builtins.readFile ./config.org}
     #+begin_src emacs-lisp
-    (setq dashboard-startup-banner "${./nixmacs.xpm}")
+    (setq dashboard-startup-banner '("${./nixmacs.xpm}" 'logo))
     #+end_src
   '';
   configFile = pkgs.tangleOrgBabelFile "default.el" preTangledFile {
@@ -93,7 +93,9 @@
         csharp-ls
         clang-tools
         cmake-language-server
-        nil
+        nixd
+	alejandra
+	ty
       ]);
 
     # Optionally override derivations.
