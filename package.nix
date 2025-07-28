@@ -8,6 +8,9 @@
     ${builtins.readFile ./config.org}
     #+begin_src emacs-lisp
     (setq dashboard-startup-banner '("${./nixmacs.xpm}" 'logo))
+
+    ;;https://github.com/wbolster/emacs-direnv/issues/85
+    (setenv "PATH" (mapconcat 'identity exec-path ":")) ;;fixes direnv losing nix pkgs
     #+end_src
   '';
   configFile = pkgs.tangleOrgBabelFile "default.el" preTangledFile {
