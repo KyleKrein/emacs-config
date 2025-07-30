@@ -119,7 +119,7 @@
     ];
   };
   mkEmacs = emacs:
-    pkgs.runCommand emacs.name
+    pkgs.runCommand "nixmacs"
     {
       nativeBuildInputs = [pkgs.makeBinaryWrapper];
       inherit (emacs) meta;
