@@ -540,8 +540,10 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
     (dashboard-modify-heading-icons '((recents   . "nf-oct-file_text")
                                 (bookmarks . "nf-oct-book")))
     :config
-    (dashboard-setup-startup-hook))
-  (setq dashboard-startup-banner '("~/.emacs.d/nixmacs.xpm" 'logo))
+    (dashboard-setup-startup-hook)
+  (let ((banner-file "~/.emacs.d/nixmacs.xpm"))
+    (when (file-exists-p (expand-file-name banner-file))
+      (setq dashboard-startup-banner ,banner-file))))
 #+end_src
 * Diminish
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
@@ -650,34 +652,53 @@ Doesn't work on Hyprland (22.05.2025)
 * Fonts
 Defining the various fonts that Emacs will use.
 #+begin_src emacs-lisp
+  (set-face-attribute 'variable-pitch nil
+                      :family "DejaVu Sans";;"ET Bembo"
+                      :height 220
+    		    :weight 'normal)
+  (set-face-attribute 'default nil
+                      :family "Iosevka"
+                      :height 210
+    		    :weight 'medium)
 
-(set-face-attribute 'default nil
-  :font "JetBrains Mono"
-  :height 110
-  :weight 'medium)
-(set-face-attribute 'variable-pitch nil
-  :font "Ubuntu"
-  :height 120
-  :weight 'medium)
-(set-face-attribute 'fixed-pitch nil
-  :font "JetBrains Mono"
-  :height 110
-  :weight 'medium)
-;; Makes commented text and keywords italics.
-;; This is working in emacsclient but not emacs.
-;; Your font must have an italic face available.
-(set-face-attribute 'font-lock-comment-face nil
-  :slant 'italic)
-(set-face-attribute 'font-lock-keyword-face nil
-  :slant 'italic)
+  (set-face-attribute 'fixed-pitch nil
+                      :family "Iosevka"
+                      :height 210
+    		    :weight 'medium)
 
-;; This sets the default font on all graphical frames created after restarting Emacs.
-;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-;; are not right unless I also add this method of setting the default font.
-(add-to-list 'default-frame-alist '(font . "JetBrains Mono-20"))
+    ;; Makes commented text and keywords italics.
+    ;; This is working in emacsclient but not emacs.
+    ;; Your font must have an italic face available.
+    (set-face-attribute 'font-lock-comment-face nil
+    		    :slant 'italic)
+    (set-face-attribute 'font-lock-keyword-face nil
+    		    :slant 'italic)
 
-;; Uncomment the following line if line spacing needs adjusting.
-(setq-default line-spacing 0.12)
+    ;; This sets the default font on all graphical frames created after restarting Emacs.
+    ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
+    ;; are not right unless I also add this method of setting the default font.
+    ;;(add-to-list 'default-frame-alist '(font . "Iosevka Mono-20"))
+
+    ;; Uncomment the following line if line spacing needs adjusting.
+    (setq-default line-spacing 0.12)
+
+    
+    (add-hook 'text-mode-hook #'variable-pitch-mode)
+    ;; Enable variable-pitch-mode in Org
+    (add-hook 'org-mode-hook #'variable-pitch-mode)
+
+    ;; Ensure code blocks, tables, and special elements remain fixed-pitch
+    (custom-set-faces
+     ;; Keep code blocks, src, and tables fixed-pitch (Iosevka)
+     '(org-block ((t (:inherit fixed-pitch))))
+     '(org-block-begin-line ((t (:inherit fixed-pitch))))
+     '(org-block-end-line ((t (:inherit fixed-pitch))))
+     '(org-table ((t (:inherit fixed-pitch))))
+     '(org-code ((t (:inherit fixed-pitch))))
+     '(org-verbatim ((t (:inherit fixed-pitch))))
+     '(org-meta-line ((t (:inherit fixed-pitch))))
+     '(org-checkbox ((t (:inherit fixed-pitch))))
+     )
 #+end_src
 
 * Sane defaults

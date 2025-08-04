@@ -4,10 +4,24 @@
   native ? false,
   ...
 }: let
+  et-bembo = pkgs.stdenv.mkDerivation rec {
+    name = "Bembo Font";
+    pname = name;
+    src = pkgs.fetchFromGitHub {
+      owner = "DavidBarts";
+      repo = "ET_Bembo";
+      rev = "b1824ac5bee3f54ef1ce88c9d6c7850f6c869818";
+      hash = "sha256-9G0Umcu5dkwx+mh0k5vPS3nIBdStlR0wBkDVzahVBwg=";
+    };
+    buildPhase = ''
+      mkdir -p $out/share/fonts/truetype
+      cp $src/* $out/share/fonts/truetype
+    '';
+  };
   preTangledFile = pkgs.writeText "config.org" ''
     ${builtins.readFile ./config.org}
     #+begin_src emacs-lisp
-    (setq dashboard-startup-banner '("${./nixmacs.xpm}" 'logo))
+    (setq dashboard-startup-banner "${./nixmacs.xpm}")
 
     ;;https://github.com/wbolster/emacs-direnv/issues/85
     (setenv "PATH" (mapconcat 'identity exec-path ":")) ;;fixes direnv losing nix pkgs
@@ -110,9 +124,10 @@
   };
   fontConfig = pkgs.makeFontsConf {
     fontDirectories = with pkgs; [
-      nerd-fonts.jetbrains-mono
-      jetbrains-mono
-      ubuntu-classic
+      nerd-fonts.iosevka
+      et-bembo
+      dejavu_fonts
+      iosevka
       nerd-fonts.symbols-only
       hack-font
       noto-fonts-emoji
