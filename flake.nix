@@ -32,7 +32,7 @@
       };
 
       snowfall = {
-        namespace = "custom";
+        namespace = "kylekrein";
         meta = {
           name = "KyleKrein's emacs configuration powered by Nix";
           title = "KyleKrein's emacs configuration powered by Nix";
