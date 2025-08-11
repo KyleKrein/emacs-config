@@ -11,44 +11,23 @@
     emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
     emacs-overlay.inputs.nixpkgs-stable.follows = "nixpkgs";
     nix-org-babel.url = "github:emacs-twist/org-babel";
+    snowfall-lib = {
+      url = "github:KyleKrein/snowfall-lib"; #"git+file:///home/kylekrein/Git/snowfall-lib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    emacs-overlay,
-    nix-org-babel,
-  }: let
-    systems = ["aarch64-linux" "x86_64-linux"];
-    eachSystem = nixpkgs.lib.genAttrs systems;
-    pkgsFor = eachSystem (system:
-      import nixpkgs {
-        localSystem = system;
-        overlays = [
-          emacs-overlay.overlays.default
-          nix-org-babel.overlays.default
-        ];
-      });
-  in {
-    formatter = eachSystem (
-      system: let
-        pkgs = pkgsFor.${system};
-      in
-        pkgs.alejandra
-    );
-    packages = eachSystem (system: let
-      pkgs = pkgsFor.${system};
-    in {
-      default = pkgs.callPackage ./package.nix {};
-      with-lsps = self.packages.${system}.default.override {
-        withLsps = true;
+  outputs = inputs: inputs.snowfall-lib.mkFlake {
+    inherit inputs;
+      src = ./.;
+
+      overlays = with inputs; [
+        nix-org-babel.overlays.default
+        emacs-overlay.overlays.default
+      ];
+
+      outputs-builder = channels: {
+        formatter = channels.nixpkgs.alejandra;
       };
-      native = self.packages.${system}.default.override {
-        native = true;
-      };
-      with-lsps-native = self.packages.${system}.with-lsps.override {
-        native = true;
-      };
-    });
   };
 }
