@@ -17,8 +17,9 @@
     };
   };
 
-  outputs = inputs: inputs.snowfall-lib.mkFlake {
-    inherit inputs;
+  outputs = inputs:
+    inputs.snowfall-lib.mkFlake {
+      inherit inputs;
       src = ./.;
 
       overlays = with inputs; [
@@ -30,12 +31,12 @@
         formatter = channels.nixpkgs.alejandra;
       };
 
-    snowfall = {
+      snowfall = {
         namespace = "custom";
         meta = {
           name = "KyleKrein's emacs configuration powered by Nix";
           title = "KyleKrein's emacs configuration powered by Nix";
         };
       };
-  };
+    };
 }

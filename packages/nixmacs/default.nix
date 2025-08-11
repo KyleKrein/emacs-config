@@ -97,8 +97,8 @@
         clang-tools
         cmake-language-server
         nixd
-	alejandra
-	ty
+        alejandra
+        ty
       ]);
 
     # Optionally override derivations.
