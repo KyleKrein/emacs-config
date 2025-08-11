@@ -4,22 +4,8 @@
   native ? false,
   ...
 }: let
-  et-bembo = pkgs.stdenv.mkDerivation rec {
-    name = "Bembo Font";
-    pname = name;
-    src = pkgs.fetchFromGitHub {
-      owner = "DavidBarts";
-      repo = "ET_Bembo";
-      rev = "b1824ac5bee3f54ef1ce88c9d6c7850f6c869818";
-      hash = "sha256-9G0Umcu5dkwx+mh0k5vPS3nIBdStlR0wBkDVzahVBwg=";
-    };
-    buildPhase = ''
-      mkdir -p $out/share/fonts/truetype
-      cp $src/* $out/share/fonts/truetype
-    '';
-  };
   preTangledFile = pkgs.writeText "config.org" ''
-    ${builtins.readFile ./config.org}
+    ${builtins.readFile ../../config.org}
     #+begin_src emacs-lisp
     (setq dashboard-startup-banner "${./nixmacs.xpm}")
 
@@ -125,7 +111,7 @@
   fontConfig = pkgs.makeFontsConf {
     fontDirectories = with pkgs; [
       nerd-fonts.iosevka
-      et-bembo
+      custom.et-bembo
       dejavu_fonts
       iosevka
       nerd-fonts.symbols-only

@@ -29,5 +29,13 @@
       outputs-builder = channels: {
         formatter = channels.nixpkgs.alejandra;
       };
+
+    snowfall = {
+        namespace = "custom";
+        meta = {
+          name = "KyleKrein's emacs configuration powered by Nix";
+          title = "KyleKrein's emacs configuration powered by Nix";
+        };
+      };
   };
 }
