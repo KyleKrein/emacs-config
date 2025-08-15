@@ -42,6 +42,7 @@
 - [[#drawing-tools][Drawing tools]]
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#calendar][Calendar]]
+- [[#org-babel][Org Babel]]
 - [[#org-mode][ORG MODE]]
   - [[#enter-folows-link][Enter folows link]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
@@ -858,6 +859,12 @@ Adding rainbow coloring to parentheses.
 (defadvice revert-buffer (after refresh-org-agenda-on-revert activate)
 (if (member (buffer-file-name (current-buffer)) org-agenda-files)
     (org-agenda-redo-all t)))
+#+end_src
+* Org Babel
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t)))
 #+end_src
 * ORG MODE
 ** Enter folows link
