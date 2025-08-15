@@ -44,6 +44,7 @@
 - [[#calendar][Calendar]]
 - [[#org-babel][Org Babel]]
 - [[#org-mode][ORG MODE]]
+  - [[#org-copy-link][Org Copy Link]]
   - [[#enter-folows-link][Enter folows link]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#modern-org-mode][Modern Org Mode]]
@@ -867,6 +868,16 @@ Adding rainbow coloring to parentheses.
  '((shell . t)))
 #+end_src
 * ORG MODE
+** Org Copy Link
+[[https://sachachua.com/blog/2024/01/org-mode-custom-link-copy-to-clipboard/][Org-mode custom link to copy to clipboard]]
+#+begin_src emacs-lisp
+(use-package org
+  :config
+  (org-link-set-parameters
+   "copy"
+   :follow (lambda (link) (kill-new link))
+   :export (lambda (_ desc &rest _) desc)))
+#+end_src
 ** Enter folows link
 #+begin_src emacs-lisp
 (setq org-return-follows-link  t)
