@@ -11,6 +11,7 @@
     emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
     emacs-overlay.inputs.nixpkgs-stable.follows = "nixpkgs";
     nix-org-babel.url = "github:emacs-twist/org-babel";
+    qml-nix.url = "git+https://git.outfoxxed.me/outfoxxed/nix-qml-support";
     snowfall-lib = {
       url = "github:KyleKrein/snowfall-lib"; #"git+file:///home/kylekrein/Git/snowfall-lib";
       inputs.nixpkgs.follows = "nixpkgs";
