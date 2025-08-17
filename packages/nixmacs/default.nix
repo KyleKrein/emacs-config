@@ -90,8 +90,8 @@
       ++ (with epkgs; [
         tree-sitter
         tree-sitter-langs
-	inputs.qml-nix.packages.${pkgs.system}.tree-sitter-qmljs
-	inputs.qml-nix.packages.${pkgs.system}.qml-ts-mode
+        inputs.qml-nix.packages.${pkgs.system}.tree-sitter-qmljs
+        inputs.qml-nix.packages.${pkgs.system}.qml-ts-mode
         treesit-grammars.with-all-grammars
         el-easydraw
       ])
@@ -102,6 +102,7 @@
         nixd
         alejandra
         ty
+        kdePackages.qtdeclarative #qmlls
       ]);
 
     # Optionally override derivations.

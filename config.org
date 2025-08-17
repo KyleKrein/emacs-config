@@ -1708,6 +1708,14 @@ Made from [[https://github.com/lite-xl/lite-xl-plugins/blob/master/plugins/langu
 
 (provide 'lobster-mode)
 #+end_src
+*** QML
+#+begin_src emacs-lisp
+  (with-eval-after-load 'eglot
+      (add-to-list 'eglot-server-programs
+          '(qml-ts-mode
+               . ("qmlls")))
+      (add-hook 'qml-ts-mode-hook #'eglot-ensure))
+#+end_src
 * Nerd Icons
 #+begin_src emacs-lisp
   (use-package nerd-icons
