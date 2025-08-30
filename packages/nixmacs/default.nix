@@ -102,7 +102,7 @@
         nixd
         alejandra
         ty
-        kdePackages.qtdeclarative #qmlls
+        #kdePackages.qtdeclarative #qmlls
       ]);
 
     # Optionally override derivations.
