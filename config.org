@@ -53,6 +53,7 @@
   - [[#insert-pictures][Insert pictures]]
   - [[#update-org-tables][Update org tables]]
   - [[#org-transclusion][Org transclusion]]
+  - [[#org-xopp][Org-xopp]]
 - [[#org-roam][ORG ROAM]]
   - [[#org-roam-itself][Org Roam itself]]
   - [[#ripgrep-files][Ripgrep files]]
@@ -971,6 +972,16 @@ Org-tempo is not a separate package but a module within org that can be enabled.
  '(org-transclusion-source-fringe
    ((t
      (:background "blue")))))
+#+end_src
+** Org-xopp
+Integrates org mode and xournal++
+[[https://github.com/mahmoodsh36/org-xopp][org-xopp]]
+#+begin_src emacs-lisp
+(git-package "https://github.com/mahmoodsh36/org-xopp.git")
+(use-package org-xopp
+  :after org
+  :config
+  (org-xopp-setup))
 #+end_src
 * ORG ROAM
 ** Org Roam itself
