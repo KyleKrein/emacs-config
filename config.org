@@ -148,7 +148,7 @@
 (global-set-key (kbd "C-c o m") 'magit)
 
 (global-set-key (kbd "C-.") 'kylekrein/duplicate-line)
-(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
+;;(windmove-default-keybindings) ;; move between windows with S-<left>, S-<right>, S-<up>, S-<down>
 #+end_src
 ** Focus new windows
 Found this [[https://emacs.stackexchange.com/questions/21770/automatically-switch-focus-to-new-window][here]] and [[https://github.com/snackon/Witchmacs#creating-a-new-window-switches-your-cursor-to-it][here]]
@@ -1710,12 +1710,16 @@ one, an error is signaled."
       (select-window other-win))))
   #+end_src
   #+begin_src emacs-lisp
-    (use-package windmove
-      :bind
-      (("<C-M-S-up>" . buf-move-up)
-       ("<C-M-S-down>" . buf-move-down)
-       ("<C-M-S-left>" . buf-move-left)
-       ("<C-M-S-right>" . buf-move-right)))
+        (use-package windmove
+          :bind
+          (("<C-up>" . windmove-up)
+           ("<C-down>" . windmove-down)
+           ("<C-left>" . windmove-left)
+           ("<C-right>" . windmove-right) 
+           ("<C-M-S-up>" . buf-move-up)
+           ("<C-M-S-down>" . buf-move-down)
+           ("<C-M-S-left>" . buf-move-left)
+           ("<C-M-S-right>" . buf-move-right)))
   #+end_src
 * Completions
 ** Corfu
