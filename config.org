@@ -53,26 +53,21 @@
   - [[#insert-pictures][Insert pictures]]
   - [[#update-org-tables][Update org tables]]
   - [[#org-transclusion][Org transclusion]]
-  - [[#org-xopp][Org-xopp]]
 - [[#org-roam][ORG ROAM]]
   - [[#org-roam-itself][Org Roam itself]]
   - [[#ripgrep-files][Ripgrep files]]
   - [[#org-roam-ui][Org Roam UI]]
   - [[#inbox][Inbox]]
-  - [[#capture-a-task-directly-into-project][Capture a task directly into Project]]
 - [[#org-agenda][Org Agenda]]
   - [[#refresh][Refresh]]
   - [[#auto-update-agenda][Auto update agenda]]
   - [[#todos-only-from-projects][TODOs only from Projects]]
-  - [[#org-recur][Org-recur]]
   - [[#small-settings][Small settings]]
   - [[#todos-in-today][Todos in Today]]
-  - [[#auto-refresh-agenda-view][Auto refresh agenda view]]
   - [[#org-timeblock][org-timeblock]]
   - [[#notifications-1][Notifications]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#ai][AI]]
-  - [[#ellama][Ellama]]
   - [[#gptel][GPT.el]]
   - [[#minuet][Minuet]]
 - [[#shells-and-terminals][SHELLS AND TERMINALS]]
@@ -102,10 +97,8 @@
   - [[#vertico][Vertico]]
   - [[#orderless][Orderless]]
   - [[#consult][Consult]]
-  - [[#fido-mode][Fido-mode]]
   - [[#descriptions][Descriptions]]
 - [[#communication][Communication]]
-  - [[#telegram][Telegram]]
 - [[#theme][Theme]]
   - [[#theme-loading][Theme loading]]
 - [[#transparency][Transparency]]
@@ -864,10 +857,13 @@ Adding rainbow coloring to parentheses.
     (org-agenda-redo-all t)))
 #+end_src
 * Org Babel
+[[https://orgmode.org/worg//org-contrib/babel/languages/ob-doc-C.html][How to use C++ code blocks (tables included)]]
 #+begin_src emacs-lisp
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((shell . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (C . t)
+     (python . t)))
 #+end_src
 * ORG MODE
 ** Org Copy Link
@@ -973,16 +969,6 @@ Org-tempo is not a separate package but a module within org that can be enabled.
    ((t
      (:background "blue")))))
 #+end_src
-** Org-xopp
-Integrates org mode and xournal++
-[[https://github.com/mahmoodsh36/org-xopp][org-xopp]]
-#+begin_src emacs-lisp
-(git-package "https://github.com/mahmoodsh36/org-xopp.git")
-(use-package org-xopp
-  :after org
-  :config
-  (org-xopp-setup))
-#+end_src
 * ORG ROAM
 ** Org Roam itself
 #+begin_src emacs-lisp
@@ -1042,36 +1028,6 @@ Integrates org mode and xournal++
                                    :if-new (file+head "Inbox.org" "#+title: Inbox\n#+category: Inbox\n#+filetags: Project")))))
 (global-set-key (kbd "C-c n b") #'kylekrein/org-roam-capture-inbox)
 #+end_src
-** Capture a task directly into Project
-Doesn't work for now
-#+begin_src emacs-lisp
-(defun kylekrein/org-roam-project-finalize-hook ()
-  "Adds the captured project file to `org-agenda-files' if the
-capture was not aborted."
-  ;; Remove the hook since it was added temporarily
-  (remove-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
-
-  ;; Add project file to the agenda list if the capture was confirmed
-  (unless org-note-abort
-    (with-current-buffer (org-capture-get :buffer)
-      (add-to-list 'org-agenda-files (buffer-file-name)))))
-
-(defun kylekrein/org-roam-capture-task ()
-  (interactive)
-  ;; Add the project file to the agenda after capture is finished
-  (add-hook 'org-capture-after-finalize-hook #'kylekrein/org-roam-project-finalize-hook)
-
-  ;; Capture the new task, creating the project file if necessary
-  (org-roam-capture- :node (org-roam-node-read
-                            nil
-                            (kylekrein/org-roam-filter-by-tag "Project"))
-                     :templates '(("p" "project" plain "* TODO %?"
-                                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
-                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
-                                                          ("Tasks"))))))
-
-(global-set-key (kbd "C-c n t") #'kylekrein/org-roam-capture-task)
-#+end_src
 * Org Agenda
 ** Refresh
 #+begin_src emacs-lisp
@@ -1115,32 +1071,6 @@ Collect and show todos only defined in files with tag ~Project~
   ;; Build the agenda list the first time for the session
   (kylekrein/org-roam-refresh-agenda-list)
 #+end_src
-** Org-recur
-[[https://github.com/mrcnski/org-recur][Org-recur]] adds simple syntax, that enhances repeating tasks funktionality
-*Examples:*
-| Usage       | Description                     |
-|-------------+---------------------------------|
-| ~\vert+2\vert~      | Recur every other day           |
-| ~\vert+w\vert~      | Recur every week                |
-| ~\vert1\vert~       | Recur the first of every month  |
-| ~\vert{}Thu\vert~     | Recur every Thursday            |
-| ~\vert{}Sun,Sat\vert~ | Recur every Sunday and Saturday |
-| ~\vert{}Wkdy\vert~    | Recur every weekday             |
-#+begin_src emacs-lispp
-(use-package org-recur
-  :hook ((org-mode . org-recur-mode)
-         (org-agenda-mode . org-recur-agenda-mode))
-  :ensure t
-  :config
-  (define-key org-recur-mode-map (kbd "C-c d") 'org-recur-finish)
-
-  ;; Rebind the 'd' key in org-agenda (default: `org-agenda-day-view').
-  (define-key org-recur-agenda-mode-map (kbd "d") 'org-recur-finish)
-  (define-key org-recur-agenda-mode-map (kbd "C-c d") 'org-recur-finish)
-
-  (setq org-recur-finish-done t
-        org-recur-finish-archive t))
-#+end_src
 ** Small settings
 #+begin_src emacs-lisp
   ;; Log time a task was set to DONE.
@@ -1180,33 +1110,6 @@ Automatically copies all *DONE* TODOs to Today's daily
                (when (equal org-state "DONE")
                  (kylekrein/org-roam-copy-todo-to-today))))
 #+end_src
-** Auto refresh agenda view
-[[https://emacs.stackexchange.com/a/68767][Link]]
-#+begin_src emacs-lis
-(defvar refresh-agenda-time-seconds 300)
-
-(defvar refresh-agenda-timer nil
-  "Timer for `refresh-agenda-timer-function' to reschedule itself, or nil.")
-
-(defun refresh-agenda-timer-function ()
-  ;; If the user types a command while refresh-agenda-timer
-  ;; is active, the next time this function is called from
-  ;; its main idle timer, deactivate refresh-agenda-timer.
-  (when refresh-agenda-timer
-    (cancel-timer refresh-agenda-timer))
-
-  (org-agenda nil "a")
-
-  (setq refresh-agenda-timer
-    (run-with-idle-timer
-      ;; Compute an idle time break-length
-      ;; more than the current value.
-      (time-add (current-idle-time) refresh-agenda-time-seconds)
-      nil
-      'refresh-agenda-timer-function)))
-
-(run-with-idle-timer refresh-agenda-time-seconds t 'refresh-agenda-timer-function)
-#+end_src
 ** org-timeblock
 [[https://github.com/ichernyshovvv/org-timeblock][Github]]
 #+begin_src emacs-lispp
@@ -1232,21 +1135,6 @@ But it doesn't work on Android in GUI because of async (interprocess communicati
          org-wild-notifier-display-time-format-string "%H:%M"
          alert-fade-time 50
          )
-#+end_src
-*** Org alert
-Actually works, but is too basic
-#+begin_src emacs-lispp
-;; Org-alert configuration
-(use-package org-alert
-  :ensure t
-  :after org
-  :config
-  (progn ;; Setup
-    (setq org-alert-interval 300
-          org-alert-notification-title "Org Agenda Reminder")
-    (org-alert-enable)
-    )
-  )
 #+end_src
 *** Appt
 Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
@@ -1294,23 +1182,6 @@ Display the actual color as a background for any hex color value (ex. #ffffff). 
     ((org-mode prog-mode) . rainbow-mode))
 #+end_src
 * AI
-** Ellama
-#+begin_src emacs-lispp
-      (use-package ellama
-        :ensure t
-        :bind ("C-c e" . ellama)
-        ;; send last message in chat buffer with C-c C-c
-        :hook (org-ctrl-c-ctrl-c-final . ellama-chat-send-last-message)
-        :init 
-        (setopt ellama-auto-scroll t)
-        (setopt ellama-language "Russian")
-        :config
-        ;; show ellama context in header line in all buffers
-        ;;(ellama-context-header-line-global-mode +1)
-        ;; show ellama session id in header line in all buffers
-        ;;(ellama-session-header-line-global-mode +1)
-        )
-#+end_src
 ** GPT.el
 #+begin_src emacs-lisp
     (use-package gptel
@@ -1469,10 +1340,10 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
       ([M-f9] . cmake-integration-save-and-compile)                ;; Ask for the target name and compile it
       ([f9] . cmake-integration-save-and-compile-last-target)      ;; Recompile the last target
       ([C-f9] . cmake-integration-run-ctest)                       ;; Run CTest
-      ([f10] . cmake-integration-run-last-target)                  ;; Run the target (using any previously set command line parameters)
-      ([S-f10] . kill-compilation)
-      ([C-f10] . cmake-integration-debug-last-target)              ;; Debug the target (using any previously set command line parameters)
-      ([M-f10] . cmake-integration-run-last-target-with-arguments) ;; Ask for command line parameters to run the target
+      ([f7] . cmake-integration-run-last-target)                  ;; Run the target (using any previously set command line parameters)
+      ([S-f7] . kill-compilation)
+      ([C-f7] . cmake-integration-debug-last-target)              ;; Debug the target (using any previously set command line parameters)
+      ([M-f7] . cmake-integration-run-last-target-with-arguments) ;; Ask for command line parameters to run the target
       ([M-f8] . cmake-integration-select-configure-preset)         ;; Ask for a preset name and call CMake to configure the project
       ([f8] . cmake-integration-cmake-reconfigure)                 ;; Call CMake to configure the project using the last chosen preset
       )
@@ -1544,7 +1415,7 @@ Function to enable it for project
         (insert "\nuse flake\n")
         (write-file envrc-path)))
     (let ((default-directory root))
-      (shell-command "direnv allow"))
+      (direnv-allow))
     (message "Added 'use flake' to .envrc and ran direnv allow in %s" root)))
 #+end_src
 * Language support
@@ -1588,18 +1459,19 @@ Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM,
 #+end_src
 ** QML
 #+begin_src emacs-lisp
+  (git-package "https://github.com/xhcoding/qml-ts-mode")  
   (use-package qml-ts-mode
-    :after lsp-mode
-    :config
-    (add-to-list 'lsp-language-id-configuration '(qml-ts-mode . "qml-ts"))
-    (add-to-list 'auto-mode-alist '("\\.qml\\'" . qml-ts-mode))
-    (lsp-register-client
-     (make-lsp-client :new-connection (lsp-stdio-connection '("qmlls"))
-                      :activation-fn (lsp-activate-on "qml-ts")
-                      :server-id 'qmlls))
-    (add-hook 'qml-ts-mode-hook (lambda ()
-                                  (setq-local electric-indent-chars '(?\n ?\( ?\) ?{ ?} ?\[ ?\] ?\; ?,))
-                                  (lsp-deferred))))
+      :after lsp-mode
+      :config
+      (add-to-list 'lsp-language-id-configuration '(qml-ts-mode . "qml-ts"))
+      (add-to-list 'auto-mode-alist '("\\.qml\\'" . qml-ts-mode))
+      (lsp-register-client
+       (make-lsp-client :new-connection (lsp-stdio-connection '("qmlls"))
+                        :activation-fn (lsp-activate-on "qml-ts")
+                        :server-id 'qmlls))
+      (add-hook 'qml-ts-mode-hook (lambda ()
+                                    (setq-local electric-indent-chars '(?\n ?\( ?\) ?{ ?} ?\[ ?\] ?\; ?,))
+                                    (lsp-deferred))))
 #+end_src
 ** RmlUi
 #+begin_src emacs-lisp
@@ -1718,14 +1590,6 @@ Made from [[https://github.com/lite-xl/lite-xl-plugins/blob/master/plugins/langu
 (add-to-list 'auto-mode-alist '("\\.lobster\\'" . lobster-mode))
 
 (provide 'lobster-mode)
-#+end_src
-*** QML
-#+begin_src emacs-lisp
-  (with-eval-after-load 'eglot
-      (add-to-list 'eglot-server-programs
-          '(qml-ts-mode
-               . ("qmlls")))
-      (add-hook 'qml-ts-mode-hook #'eglot-ensure))
 #+end_src
 * Nerd Icons
 #+begin_src emacs-lisp
@@ -1848,10 +1712,10 @@ one, an error is signaled."
   #+begin_src emacs-lisp
     (use-package windmove
       :bind
-      (("<M-S-up>" . buf-move-up)
-       ("<M-S-down>" . buf-move-down)
-       ("<M-S-left>" . buf-move-left)
-       ("<M-S-right>" . buf-move-right)))
+      (("<C-M-S-up>" . buf-move-up)
+       ("<C-M-S-down>" . buf-move-down)
+       ("<C-M-S-left>" . buf-move-left)
+       ("<C-M-S-right>" . buf-move-right)))
   #+end_src
 * Completions
 ** Corfu
@@ -2122,26 +1986,6 @@ one, an error is signaled."
                      :category 'file
                      :predicate pred)))
 #+end_src
-** Fido-mode
-Enables fido completion in emacs. It's actually cool, but...
-
-Sometimes it hides the last result and it doesn't work good when using app launchers
-#+begin_src emacs-lispp
-(global-completion-preview-mode)
-(fido-mode t)
-(savehist-mode t)
-(fido-vertical-mode t)
-(setf completion-auto-select t ;; Show completion on first call
-      completion-auto-help 'visible ;; Display *Completions* upon first request
-      completions-format 'one-column ;; Use only one column
-      completions-sort 'historical ;; Order based on minibuffer history
-      completions-max-height 20 ;; Limit completions to 15 (completions start at line 5)
-      completion-ignore-case t)
-(define-key icomplete-minibuffer-map (kbd "SPC") 'self-insert-command) ;; Allows to type spaces, if no completions available
-
-;; Have TAB complete using the first option and continue, instead of popping up the *Completions* buffer
-(define-key icomplete-minibuffer-map [remap minibuffer-complete] 'icomplete-force-complete)
-#+end_src
 ** Descriptions
 *** Marginalia
 [[https://github.com/minad/marginalia/]]
@@ -2165,17 +2009,6 @@ Descriptions for completions
     (marginalia-mode))
 #+end_src
 * Communication
-** Telegram
-[[https://github.com/zevlg/telega.el][Telega]] is a telegram client for Emacs.
-It doesn't work for unknown reason
-#+begin_src emacs-lispp
-  (use-package telega
-    :ensure t
-    :init
-    (setq telega-use-docker nil)
-    (setq telega-use-images nil)
-    :defer t)
-#+end_src
 * Theme
 [[https://emacsfodder.github.io/emacs-theme-editor/][Emacs Theme Editor]]
 ** Theme loading
