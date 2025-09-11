@@ -100,6 +100,8 @@
         nixd
         alejandra
         ty
+	gcc # for C++ code blocks
+	python3 #for python code blocks
         #kdePackages.qtdeclarative #qmlls
       ]);
 
