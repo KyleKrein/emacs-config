@@ -1179,6 +1179,7 @@ To use it, create a global keyboard shortcut with the following code
                     (emacs--run-password-copy-field)
 		    (make-frame-invisible launcher-frame)
                     (run-at-time "60 sec" nil (lambda (frame) (delete-frame frame)) launcher-frame))))
+#+end_src
 * CMake Projects
 #+begin_src emacs-lisp
   (git-package "https://github.com/darcamo/cmake-integration.git")
