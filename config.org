@@ -625,7 +625,7 @@ This package implements hiding or abbreviation of the modeline displays (lighter
 #+end_src
 ** Standalone emoji picker
 To use it, create a global keyboard shortcut with the following code
-~emacsclient -cF "((visibility . nil))" -e "(emacs-run-emoji-picker)~
+~emacsclient -cF "((visibility . nil))" -e "(emacs-run-emoji-picker)"~
 #+begin_src emacs-lisp
 (defun emacs-run-emoji-picker ()
   "Create and select a frame called emacs-run-launcher which consists only of a minibuffer and has specific dimensions. Runs func on that frame, which is an emacs command that prompts you to select something and open it dmenu like behaviour. Delete the frame after some time after that command has exited in order to keep copied text in system clipboard"
@@ -1312,7 +1312,7 @@ This code snippet runs allows to get field for a password entry without emacs fr
 To use it, create a global keyboard shortcut with the following code
 ~emacsclient -cF "((visibility . nil))" -e "(emacs-run-password-copy-field)"~
 #+begin_src emacs-lisp
-  (defun emacs--run-password-copy-field ()
+(defun emacs--run-password-copy-field ()
     (interactive)
     (let* ((entry (password-store--completing-read))
            (field (password-store-read-field entry))
@@ -1326,8 +1326,12 @@ To use it, create a global keyboard shortcut with the following code
   	     :category 'pass
   	     :id 'pass)))
 
-  (defun emacs-run-password-copy-field()
-    (emacs-run-launcher 'emacs--run-password-copy-field))
+(defun emacs-run-password-copy-field()
+  (let ((launcher-frame (create-launcher-frame)))
+                  (with-selected-frame launcher-frame
+                    (emacs--run-password-copy-field)
+		    (make-frame-invisible launcher-frame)
+                    (run-at-time "60 sec" nil (lambda (frame) (delete-frame frame)) launcher-frame))))
 * CMake Projects
 #+begin_src emacs-lisp
   (git-package "https://github.com/darcamo/cmake-integration.git")
