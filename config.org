@@ -458,10 +458,10 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
 ** Standalone run
 This code snippet runs app launcher without emacs frame
 To use it, create a global keyboard shortcut with the following code
-~emacsclient -cF "((visibility . nil))" -e "(emacs-run-app-launcher)~
+~emacsclient -cF "((visibility . nil))" -e "(emacs-run-app-launcher)"~
 #+begin_src emacs-lisp
-(defun emacs-run-app-launcher()
-  (emacs-run-launcher 'app-launcher-run-app))
+  (defun emacs-run-app-launcher()
+    (emacs-run-launcher 'app-launcher-run-app))
 #+end_src
 * Backup files (tilda files)
 By default, Emacs creates automatic backups of files in their original directories, such “file.el” and the backup “file.el~”.  This leads to a lot of clutter, so let’s tell Emacs to put all backups that it creates in the ~.emacs.d~ directory.
@@ -1307,6 +1307,27 @@ Vterm is a terminal emulator within Emacs.  The 'shell-file-name' setting sets t
      :ensure t)
   (setq epg-pinentry-mode 'loopback)
 #+end_src
+
+This code snippet runs allows to get field for a password entry without emacs frame
+To use it, create a global keyboard shortcut with the following code
+~emacsclient -cF "((visibility . nil))" -e "(emacs-run-password-copy-field)"~
+#+begin_src emacs-lisp
+  (defun emacs--run-password-copy-field ()
+    (interactive)
+    (let* ((entry (password-store--completing-read))
+           (field (password-store-read-field entry))
+           (value (if (string= field "secret")
+                      (password-store-get entry)
+                    (password-store-get-field entry field))))
+      (password-store--save-field-in-kill-ring entry value field)
+      (alert (format "%s:%s\nClipboard will be cleared in 45 seconds" entry field)
+               :title "Copied"
+               :severity 'trivial
+  	     :category 'pass
+  	     :id 'pass)))
+
+  (defun emacs-run-password-copy-field()
+    (emacs-run-launcher 'emacs--run-password-copy-field))
 * CMake Projects
 #+begin_src emacs-lisp
   (git-package "https://github.com/darcamo/cmake-integration.git")
