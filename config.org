@@ -33,19 +33,13 @@
   - [[#battery-info][Battery info]]
 - [[#epub-support-reader-in-emacs][Epub support (Reader in Emacs)]]
 - [[#magit][MAGIT]]
-- [[#minibuffer-escape][Minibuffer escape]]
 - [[#modeline][Modeline]]
-  - [[#mini-echo-modeline][Mini-echo modeline]]
-- [[#pixel-scrolling][Pixel-scrolling]]
-  - [[#native][Native]]
-- [[#pdf-tools][PDF Tools]]
 - [[#drawing-tools][Drawing tools]]
 - [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#calendar][Calendar]]
 - [[#org-babel][Org Babel]]
 - [[#org-mode][ORG MODE]]
   - [[#org-copy-link][Org Copy Link]]
-  - [[#enter-folows-link][Enter folows link]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
   - [[#modern-org-mode][Modern Org Mode]]
   - [[#org-level-headers][Org Level Headers]]
@@ -64,7 +58,6 @@
   - [[#todos-only-from-projects][TODOs only from Projects]]
   - [[#small-settings][Small settings]]
   - [[#todos-in-today][Todos in Today]]
-  - [[#org-timeblock][org-timeblock]]
   - [[#notifications-1][Notifications]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#ai][AI]]
@@ -567,9 +560,11 @@ The following settings are simple modes that are enabled (or disabled) so that E
 #+end_src
 ** Battery info
 #+begin_src emacs-lisp
-(unless (equal "Battery status not available"
-               (battery))
-  (display-battery-mode 1))
+  (unless (or 
+  	 (equal "Battery status not available" (battery)) 
+  	 (equal "Power N/A, battery Charging (N/A% load, remaining time N/A)" (battery))
+  	 (equal "Power N/A, battery Discharging (N/A% load, remaining time N/A)" (battery)))
+    (display-battery-mode 1))
 #+end_src
 * Epub support (Reader in Emacs)
 [[https://depp.brause.cc/nov.el/][Nov.el]] is recommended by [[https://www.masteringemacs.org/book][Author of Mastering Emacs book]]
@@ -583,11 +578,6 @@ Magit is a full-featured git client for Emacs.
   (use-package magit
     :ensure t)
 #+end_src
-* Minibuffer escape
-By default, Emacs requires you to hit ESC three times to escape quit the minibuffer.
-#+begin_src emacs-lisp
-(global-set-key [escape] 'keyboard-escape-quit)
-#+end_src
 * Modeline
 The modeline is the bottom status bar that appears in Emacs windows.  While you can create your own custom modeline, why go to the trouble when Doom Emacs already has a nice modeline package available.  For more information on what is available to configure in the Doom modeline, check out: [[https://github.com/seagle0128/doom-modeline][Doom Modeline]]
 #+begin_src emacs-lisp
@@ -600,63 +590,6 @@ The modeline is the bottom status bar that appears in Emacs windows.  While you 
         doom-modeline-persp-name nil   ;; adds perspective name to modeline
 	doom-modeline-time t         ;; shows time
         doom-modeline-persp-icon nil)) ;; adds folder icon next to persp name
-#+end_src
-** Mini-echo modeline
-The "global modeline" [[https://github.com/eki3z/mini-echo.el][package]], that disables pro buffer modeline and shows itself in echo area.
-#+begin_src emacs-lispp
-        (use-package mini-echo
-          :ensure t
-          :init (mini-echo-mode)
-          :custom
-  	)
-#+end_src
-* Pixel-scrolling
-** Native
-This doesn-t work for me for now, very laggy and inconsistent
-#+begin_src emacs-lisp
-;;; Scrolling.
-;; Good speed and allow scrolling through large images (pixel-scroll).
-;; Note: Scroll lags when point must be moved but increasing the number
-;;       of lines that point moves in pixel-scroll.el ruins large image
-;;       scrolling. So unfortunately I think we'll just have to live with
-;;       this.
-(setq fast-but-imprecise-scrolling t) ; No (less) lag while scrolling lots.
-(pixel-scroll-precision-mode 1)
-(setq pixel-dead-time 0) ; Never go back to the old scrolling behaviour.
-(setq pixel-resolution-fine-flag t) ; Scroll by number of pixels instead of lines (t = frame-char-height pixels).
-(setq mouse-wheel-scroll-amount '(1)) ; Distance in pixel-resolution to scroll each mouse wheel event.
-(setq mouse-wheel-progressive-speed t) ; Progressive speed is too fast for me.
-(setq redisplay-skip-fortification-on-input t)
-#+end_src
-* PDF Tools
-[[https://github.com/vedang/pdf-tools][pdf-tools]] is a replacement of DocView for viewing PDF files inside Emacs.  It uses the poppler library, which also means that ‘pdf-tools’ can by used to modify PDFs.  I use to disable ‘display-line-numbers-mode’ in ‘pdf-view-mode’ because line numbers crash it.
-#+begin_src emacs-lisp
-   (unless (kylekrein/is-android) ;; fails to compile
-    (use-package pdf-tools
-      :ensure t
-      :defer t
-      :commands (pdf-loader-install)
-      :mode "\\.pdf\\'"
-      ;:bind (:map pdf-view-mode-map
-      ;            ("j" . pdf-view-next-line-or-next-page)
-      ;            ("k" . pdf-view-previous-line-or-previous-page)
-      ;            ("C-=" . pdf-view-enlarge)
-      ;            ("C--" . pdf-view-shrink))
-      :init (pdf-loader-install)
-      :config (add-to-list 'revert-without-query ".pdf"))
-
-    (add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)))
-  ;; edit -> view
-    (add-hook 'pdf-virtual-edit-mode-hook
-            (lambda ()
-              (define-key pdf-virtual-edit-mode-map (kbd "C-c C-c") #'pdf-view-mode)
-              )))
-
-  ;; view -> edit
-  (add-hook 'pdf-view-mode-hook
-            (lambda ()
-              (define-key pdf-view-mode-map (kbd "C-c C-c") #'pdf-virtual-edit-mode)
-              ))
 #+end_src
 * Drawing tools
 [[https://github.com/misohena/el-easydraw][el-easydraw]]
@@ -722,10 +655,6 @@ Adding rainbow coloring to parentheses.
    "copy"
    :follow (lambda (link) (kill-new link))
    :export (lambda (_ desc &rest _) desc)))
-#+end_src
-** Enter folows link
-#+begin_src emacs-lisp
-(setq org-return-follows-link  t)
 #+end_src
 ** Enabling Table of Contents
 #+begin_src emacs-lisp
@@ -957,32 +886,7 @@ Automatically copies all *DONE* TODOs to Today's daily
                (when (equal org-state "DONE")
                  (kylekrein/org-roam-copy-todo-to-today))))
 #+end_src
-** org-timeblock
-[[https://github.com/ichernyshovvv/org-timeblock][Github]]
-#+begin_src emacs-lispp
-(use-package compat :ensure t) ;;needed for org-timeblock
-(use-package org-timeblock :ensure t :after compat)
-#+end_src
 ** Notifications
-*** Org wild notifier
-Found the solution [[https://www.reddit.com/r/orgmode/comments/15ayqvv/orgnotifications_for_scheduled_tasks_in_orgagenda/][Here]]
-But it doesn't work on Android in GUI because of async (interprocess communications)
-#+begin_src emacs-lispp
-     (use-package org-wild-notifier
-       :ensure t
-       :after 'org
-     )
-  (org-wild-notifier-mode)
-       (setq ;alert-default-style 'libnotify
-         org-wild-notifier-alert-time '(0 5 10 60)
-         org-wild-notifier-day-wide-alert-times "7:00"
-         org-wild-notifier-keyword-whitelist nil
-         ;; good for testing
-         org-wild-notifier--alert-severity 'high
-         org-wild-notifier-display-time-format-string "%H:%M"
-         alert-fade-time 50
-         )
-#+end_src
 *** Appt
 Internal emacs tool and [[https://github.com/jwiegley/alert][alert]]. Settings for alert are at the beginning of this file.
 This solution was found [[https://igormelo.org/you_dont_need_org_alert.html][here]].
